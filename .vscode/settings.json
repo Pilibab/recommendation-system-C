@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "math.h": "c",
+        "string.h": "c",
+        "vect_ops.h": "c",
+        "vectorizer.h": "c",
+        "colaborative_filtering.h": "c",
+        "get_data.h": "c",
+        "stdio.h": "c",
+        "stdlib.h": "c"
+    }
+}

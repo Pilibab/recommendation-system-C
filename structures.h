@@ -14,7 +14,8 @@ struct MovieRating {
 
 // Structure for storing user data (including ratings)
 struct User {
-    struct MovieRating *ratings; // Dynamic array of ratings
+    int countRate; 
+    struct MovieRating *ratings; 
 };
 
 struct dataSet
@@ -24,4 +25,4 @@ struct dataSet
     float weightedFeature[GENRESIZE]; 
 }; 
 
-#endif // STRUCTURES_H
+#endif 

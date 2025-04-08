@@ -9,21 +9,18 @@ void createUsermovieMatrix(FILE *usersRateMovie, int user, int numMovies, int nu
 {
 
     struct User users[user];
-    for (int i = 0; i < user; i++) {
+    for (int i = 0; i < user; i++)                                  //holly fucking shit 6hrs... this is the solution 
+    {
         users[i].ratings = NULL;
         users[i].countRate = 0;
+        users[i].sumOfRate = 0;
     }
 
     int tempMovieId, tempUserId, tempRate; 
     for (int i = 1; i < numRates; i++)
     {
-        
         fscanf(usersRateMovie, "%d %d %d %*d", &tempUserId, &tempMovieId, &tempRate);
-
-
-        {
         addRating(&users[tempUserId], tempMovieId, tempRate);
-        }
     }
     printSampleLinked(users);
 }
@@ -33,10 +30,11 @@ void addRating(struct User *user, int id, int rating)
     struct MovieRating* temp, *head = user->ratings;
     struct MovieRating* newN = (struct MovieRating *)malloc(sizeof(struct MovieRating));
 
-    newN->movieId=id;
+    newN->movieId = id;
+    newN->rating = rating;
     newN->next = NULL;
 
-    if (head == NULL || id < head->movieId)
+    if (head == NULL || id < head->movieId)                             //insert newN at the beging if null or smallest
     {
         newN->next = head;
         head = newN;
@@ -51,6 +49,7 @@ void addRating(struct User *user, int id, int rating)
     }
 
     user->ratings = head;
+    user->sumOfRate += rating;
     user->countRate++;
 }
 
@@ -69,15 +68,19 @@ void printSampleLinked(struct User * user)
 {
     for (int i = 1; i < 10 ; i ++)
     {
-        printf("user: %d no of rating: %d\n", i, user[i].countRate);
+        double avg = 0;
+        if ( user[i].countRate != 0 )
+            avg = user[i].sumOfRate / user[i].countRate;
 
-        struct MovieRating * curr = user[i].ratings;
-
-        while (curr != NULL)
-        {
-            printf("%d ", curr->movieId);
-            curr = curr->next; 
-        }
+        printf("user: %d no of rating: %d total rating: %.2lf average: %.2lf\n", 
+            i, user[i].countRate, user[i].sumOfRate, avg);
+     
+        // struct MovieRating * curr = user[i].ratings;
+        // while (curr != NULL)
+        // {
+        //     printf("%d ", curr->movieId);
+        //     curr = curr->next; 
+        // }
         printf("\n");
     }
 }

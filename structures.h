@@ -8,13 +8,14 @@
 // Structure for storing movie ratings
 struct MovieRating {
     int movieId;
-    int rating;
+    int rating;                             // no of rating
     struct MovieRating *next;
 };
 
 // Structure for storing user data (including ratings)
 struct User {
     int countRate; 
+    double sumOfRate;                          // add all rate 
     struct MovieRating *ratings; 
 };
 

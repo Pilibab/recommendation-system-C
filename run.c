@@ -57,9 +57,7 @@ int main()
 
     // Now pass movies to addWeight()
     addWeight(movies, validMovieCount, weights, genreFreqCounter);
-
-    printSample(movies);
-
+    // printSample(movies);
     createUsermovieMatrix(dataFile, users, items, ratings);
 
 

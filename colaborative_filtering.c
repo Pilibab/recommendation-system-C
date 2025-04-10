@@ -1,15 +1,19 @@
 #include "colaborative_filtering.h"
 #include "structures.h"
+#include "pearson.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+#define NEIGHBOR 10
 
 
-void createUsermovieMatrix(FILE *usersRateMovie, int user, int numMovies, int numRates)
+
+void createUsermovieMatrix(FILE *usersRateMovie, int userCount, int numMovies, int numRates)
 {
 
-    struct User users[user];
-    for (int i = 0; i < user; i++)                                  //holly fucking shit 6hrs... this is the solution 
+    struct User users[userCount];
+
+    for (int i = 0; i < userCount; i++)                                  //holly fucking shit 6hrs... this is the solution 
     {
         users[i].ratings = NULL;
         users[i].countRate = 0;
@@ -22,7 +26,19 @@ void createUsermovieMatrix(FILE *usersRateMovie, int user, int numMovies, int nu
         fscanf(usersRateMovie, "%d %d %d %*d", &tempUserId, &tempMovieId, &tempRate);
         addRating(&users[tempUserId], tempMovieId, tempRate);
     }
-    printSampleLinked(users);
+
+    printf("comparing user\n");
+    int topNeighbor[NEIGHBOR][2] = {0};                                 // why works if initialize here????
+
+    //compare user
+    topNeighboor(users[1], users, topNeighbor, userCount);
+
+    printf("printing top neighbor\n");
+
+    for (int i = 0; i < NEIGHBOR; i++)
+        printf("%d: %d \n", topNeighbor[i][0], topNeighbor[i][1]);
+
+    // printSampleLinked(users);
 }
 
 void addRating(struct User *user, int id, int rating) 

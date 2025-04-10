@@ -15,7 +15,7 @@ void topNeighboor(struct User indexUser, struct User toCompare[], SimilarUser *s
     // [[user id][total similar movie], ...,]
 
 
-    for (int i = 1; i < user; i++)
+    for (int i = 1; i < 50; i++)
     {
         int countSimilar = 0;
         struct MovieRating * tempA = toCompare[i].ratings;                  //arr struct
@@ -41,7 +41,9 @@ void topNeighboor(struct User indexUser, struct User toCompare[], SimilarUser *s
 
         //arr is initially 0.. check if similarity > min similarity in arr
         //im quite the genuis ngnl
-        if (countSimilar >= similarUsers[9].similarCount) 
+        
+        // printf("%d: %d\n", i, countSimilar);
+        if (countSimilar >= similarUsers[9].similarCount)  
             insertPos(similarUsers, i, countSimilar);
     } 
 }
@@ -60,7 +62,7 @@ void insertPos(SimilarUser *similarUsers, int UserID, int countSimilar)
         similarUsers[0].userId = UserID;
         similarUsers[0].similarCount = countSimilar;        
     } else {
-        while (i < NEIGHBOR && similarUsers->similarCount >= countSimilar)
+        while (i < NEIGHBOR && similarUsers[i].similarCount >= countSimilar)
             {
                 i++;
                 flagShift = 1;
@@ -70,8 +72,8 @@ void insertPos(SimilarUser *similarUsers, int UserID, int countSimilar)
         {
             int tempUser = similarUsers->userId, tempSim  = similarUsers->similarCount ;
 
-            for (int j = NEIGHBOR - 2; j >= i; j--) 
-                similarUsers[j + 1]= similarUsers[j];
+            for (int j = NEIGHBOR - 1; j >= i; j--)         //wr tf did 2 comefrom???
+                similarUsers[j + 1] = similarUsers[j];
  
             similarUsers[i].similarCount = countSimilar;
             similarUsers[i].userId = UserID;

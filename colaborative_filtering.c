@@ -45,7 +45,7 @@ void createUsermovieMatrix(FILE *usersRateMovie, int userCount, int numMovies, i
     printf("printing top neighbor\n");
 
     for (int i = 0; i < NEIGHBOR; i++)
-        printf("%d: %d \n", similarUsers->userId , similarUsers->similarCount);
+        printf("%d: %d \n", similarUsers[i].userId , similarUsers[i].similarCount);
 
     // printSampleLinked(users);
 }

@@ -6,8 +6,8 @@
 #define NEIGHBOR 10
 
     // float pearsonCorrelation(struct User *user);
-    void topNeighboor(struct User indexUser, struct User toCompare[], int tN[][2], int user);
-    void insertPos(int arr[][2], int UserID, int similarCount);
+    void topNeighboor(struct User indexUser, struct User toCompare[], SimilarUser *similarUsers, int user);
+    void insertPos(SimilarUser *similarUsers, int UserID, int countSimilar);
 
 
 #endif

@@ -10,7 +10,7 @@
 
 // }
 
-void topNeighboor(struct User indexUser, struct User toCompare[], int tN[NEIGHBOR][2], int user)
+void topNeighboor(struct User indexUser, struct User toCompare[], SimilarUser *similarUsers, int user)
 {
     // [[user id][total similar movie], ...,]
 
@@ -41,8 +41,8 @@ void topNeighboor(struct User indexUser, struct User toCompare[], int tN[NEIGHBO
 
         //arr is initially 0.. check if similarity > min similarity in arr
         //im quite the genuis ngnl
-        if (countSimilar >= tN[NEIGHBOR - 1][1]) 
-            insertPos(tN, i, countSimilar);
+        if (countSimilar >= similarUsers[9].similarCount) 
+            insertPos(similarUsers, i, countSimilar);
     } 
 }
 
@@ -50,19 +50,17 @@ void topNeighboor(struct User indexUser, struct User toCompare[], int tN[NEIGHBO
  * modify topNeigbor array (sort and insertion), insert then shift
  * check if the array size is 10 before inserting (over write the last element)
  */
-void insertPos(int arr[][2], int UserID, int similarCount) 
+void insertPos(SimilarUser *similarUsers, int UserID, int countSimilar) 
 {
-    int checkArr = 0;
+    int checkArr = 0, 
+        flagShift = 0, 
+        i = 0;;
 
-    if (arr[0][0] == 0){         //case: first time inserting
-        arr[0][0] = UserID;
-        arr[0][1] = similarCount;
+    if (similarUsers[0].similarCount == 0){         //case: first time inserting
+        similarUsers[0].userId = UserID;
+        similarUsers[0].similarCount = countSimilar;        
     } else {
-
-        int flagShift = 0, 
-            i = 0;
-
-        while (i < NEIGHBOR && arr[i][1] >= similarCount)
+        while (i < NEIGHBOR && similarUsers->similarCount >= countSimilar)
             {
                 i++;
                 flagShift = 1;
@@ -70,15 +68,13 @@ void insertPos(int arr[][2], int UserID, int similarCount)
 
         if (flagShift)                          //shift array index
         {
-            int tempUser = arr[i][0], tempSim  = arr[i][1] ;
+            int tempUser = similarUsers->userId, tempSim  = similarUsers->similarCount ;
 
-            for (int j = NEIGHBOR - 2; j >= i; j--) {
-                arr[j + 1][0] = arr[j][0];
-                arr[j + 1][1] = arr[j][1];
-            }
-            
-            arr[i][1] = similarCount;
-            arr[i][0] = UserID;
+            for (int j = NEIGHBOR - 2; j >= i; j--) 
+                similarUsers[j + 1]= similarUsers[j];
+ 
+            similarUsers[i].similarCount = countSimilar;
+            similarUsers[i].userId = UserID;
         }
     }
 }

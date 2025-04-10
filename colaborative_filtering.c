@@ -28,15 +28,24 @@ void createUsermovieMatrix(FILE *usersRateMovie, int userCount, int numMovies, i
     }
 
     printf("comparing user\n");
-    int topNeighbor[NEIGHBOR][2] = {0};                                 // why works if initialize here????
+    
+    SimilarUser similarUsers[NEIGHBOR];
+
+    for (int i = 0; i < NEIGHBOR; i++) {
+        similarUsers[i].userId = 0;
+        similarUsers[i].similarCount = 0;
+        similarUsers[i].pearsonScore = 0.0f;
+        similarUsers[i].similarMovie = NULL;
+    }
+
 
     //compare user
-    topNeighboor(users[1], users, topNeighbor, userCount);
+    topNeighboor(users[1], users, similarUsers, userCount);
 
     printf("printing top neighbor\n");
 
     for (int i = 0; i < NEIGHBOR; i++)
-        printf("%d: %d \n", topNeighbor[i][0], topNeighbor[i][1]);
+        printf("%d: %d \n", similarUsers->userId , similarUsers->similarCount);
 
     // printSampleLinked(users);
 }

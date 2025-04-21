@@ -13,13 +13,14 @@ void createUsermovieMatrix(FILE *usersRateMovie, int userCount, int numMovies, i
 
     struct User users[userCount];
 
-    for (int i = 0; i < userCount; i++)                                  //holly fucking shit 6hrs... this is the solution 
+    for (int i = 1; i < userCount + 1; i++)                                  //holly fucking shit 6hrs... this is the solution 
     {
         users[i].ratings = NULL;
         users[i].countRate = 0;
         users[i].sumOfRate = 0;
     }
 
+    printf("adding rating\n"); 
     int tempMovieId, tempUserId, tempRate; 
     for (int i = 1; i < numRates; i++)
     {
@@ -35,7 +36,8 @@ void createUsermovieMatrix(FILE *usersRateMovie, int userCount, int numMovies, i
         similarUsers[i].userId = 0;
         similarUsers[i].similarCount = 0;
         similarUsers[i].pearsonScore = 0.0f;
-        similarUsers[i].similarMovie = NULL;
+        similarUsers[i].similarMovie_UA = NULL;
+        similarUsers[i].similarMovie_UB = NULL;
     }
 
 

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "pearson.h"
 #include "structures.h"
@@ -12,10 +13,7 @@
 
 void topNeighboor(struct User indexUser, struct User toCompare[], SimilarUser *similarUsers, int user)
 {
-    // [[user id][total similar movie], ...,]
-
-
-    for (int i = 1; i < 50; i++)
+    for (int i = 1; i < user + 1; i++)
     {
         int countSimilar = 0;
         struct MovieRating * tempA = toCompare[i].ratings;                  //arr struct
@@ -23,13 +21,49 @@ void topNeighboor(struct User indexUser, struct User toCompare[], SimilarUser *s
 
         struct User * UserA = &indexUser;
         struct User * UserB = &toCompare[i];
-
         
+        struct MovieRating * currA = NULL;
+        struct MovieRating * currB = NULL;
+
+        struct MovieRating * headA= NULL;
+        struct MovieRating * headB = NULL;
+
         while (tempA != NULL && tempB != NULL)
         {
             if (tempA->movieId == tempB->movieId)
             {
+                struct MovieRating * sm_UA = (struct MovieRating *)malloc(sizeof(struct MovieRating));
+                struct MovieRating * sm_UB = (struct MovieRating *)malloc(sizeof(struct MovieRating));
+                
+                //add similar movie from user a
+                sm_UA->movieId  = tempA->movieId;
+                sm_UA->rating   = tempA->rating;   
+                sm_UA -> next = NULL;
+
+                if (headA == NULL) {
+                    headA = sm_UA;
+                    currA = sm_UA;
+                } else {
+                    currA -> next =  sm_UA;
+                    currA = sm_UA;
+                }
+
+                //add sim movie from b 
+                sm_UB->movieId  = tempB->movieId;
+                sm_UB->rating   = tempB->rating;
+                sm_UB -> next = NULL;
+
+                if (headB == NULL) {
+                    headB = sm_UB;
+                    currB = sm_UB;
+                } else {
+                    currB -> next =  sm_UB;
+                    currB = sm_UA;
+                }
+
+
                 countSimilar++;
+
                 tempA = tempA->next;
                 tempB = tempB->next;
             }

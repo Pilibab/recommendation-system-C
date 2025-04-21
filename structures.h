@@ -30,7 +30,9 @@ typedef struct {
     int userId;
     int similarCount;
     float pearsonScore; // Add this now so you can store it directly
-    struct MovieRating * similarMovie;
+
+    struct MovieRating * similarMovie_UA;
+    struct MovieRating * similarMovie_UB;
 } SimilarUser;
 
 

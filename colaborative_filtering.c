@@ -31,25 +31,36 @@ void createUsermovieMatrix(FILE *usersRateMovie, int userCount, int numMovies, i
     printf("comparing user\n");
     
     SimilarUser similarUsers[NEIGHBOR];
+    struct ratingsTopN kth[NEIGHBOR];
 
     for (int i = 0; i < NEIGHBOR; i++) {
         similarUsers[i].userId = 0;
         similarUsers[i].similarCount = 0;
-        similarUsers[i].pearsonScore = 0.0f;
-        similarUsers[i].similarMovie_UA = NULL;
-        similarUsers[i].similarMovie_UB = NULL;
+
+        kth[i].movieId = 0;
+        kth[i].next = NULL;
+        kth[i].pearsonScore = 0.0f;
+        kth->rating[0] = 0;
+        kth->rating[1] = 0;
     }
 
 
     //compare user
     topNeighboor(users[1], users, similarUsers, userCount);
-
+    getRateOfMovie (kth, users[1], users, similarUsers);
     printf("printing top neighbor\n");
 
     for (int i = 0; i < NEIGHBOR; i++)
         printf("%d: %d \n", similarUsers[i].userId , similarUsers[i].similarCount);
 
-    // printSampleLinked(users);
+    printf("printing sample\n");
+    
+    struct ratingsTopN * temp = kth[9].next;
+    while(temp != NULL)
+    {
+        printf("%d: %d, %d\n", temp->movieId, temp->rating[0], temp->rating[1]);
+        temp = temp -> next;
+    }
 }
 
 void addRating(struct User *user, int id, int rating) 
@@ -78,17 +89,6 @@ void addRating(struct User *user, int id, int rating)
     user->ratings = head;
     user->sumOfRate += rating;
     user->countRate++;
-}
-
-void freeRatings(struct User *user) 
-{
-    struct MovieRating *current = user->ratings;
-    while (current != NULL) {
-        struct MovieRating *temp = current;
-        current = current->next;
-        free(temp);
-    }
-    user->ratings = NULL;  // Avoid dangling pointer
 }
 
 void printSampleLinked(struct User * user)

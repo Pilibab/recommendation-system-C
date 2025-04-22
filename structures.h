@@ -25,14 +25,18 @@ struct dataSet
     int genreFeature[GENRESIZE];
     float weightedFeature[GENRESIZE]; 
 }; 
+struct ratingsTopN
+{
+    int movieId;
+    int rating[2];
+    float pearsonScore; 
+
+    struct ratingsTopN * next; 
+};
 
 typedef struct {
     int userId;
     int similarCount;
-    float pearsonScore; // Add this now so you can store it directly
-
-    struct MovieRating * similarMovie_UA;
-    struct MovieRating * similarMovie_UB;
 } SimilarUser;
 
 

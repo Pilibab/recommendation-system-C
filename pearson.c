@@ -1,16 +1,48 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "pearson.h"
 #include "structures.h"
 #define NEIGHBOR 10
 
+#define sqr(x) (x * x)
 
-float pearsonCorrelation(struct User *user)
+
+void pearsonCorrelation(SimilarUser * topKthN, struct User getUserInfo[], struct User userA )
 {
+    for (int nearest10 = 0; nearest10 < NEIGHBOR; nearest10++)
+    {
 
+        int userId = topKthN[nearest10].userId;
+        int no_of_rate = getUserInfo[userId].countRate;
+        double count_UB = getUserInfo[userId].sumOfRate, count_UA = userA.sumOfRate;
+
+        float average_UB = (count_UB / no_of_rate);
+        float average_UA = (count_UA / no_of_rate); 
+
+        struct ratingsTopN * curr_UA = topKthN[nearest10].theirMovies;
+
+        float dotProduct_deMean = 0;
+        float preMagDemean_UA = 0, preMagDemean_UB = 0;                     //preMag - before getting the mag niture 
+
+        while (curr_UA != NULL )
+        {
+            float demean_UA = (curr_UA->rating[0] - average_UA);
+            float demean_UB = (curr_UA->rating[1] - average_UB);
+
+            dotProduct_deMean += demean_UA * demean_UB; 
+            preMagDemean_UA += sqr(demean_UA); 
+            preMagDemean_UB += sqr(demean_UB); 
+
+            curr_UA = curr_UA -> next;
+        }   
+        topKthN[nearest10].theirMovies->pearsonScore =  dotProduct_deMean / (sqrt(preMagDemean_UA) * sqrt(preMagDemean_UB));
+    }
 }
-
+/**
+ * compiles the top 10 most similar user (interms of no of similar watched movie)
+ */
 void topNeighboor(struct User indexUser, struct User toCompare[], SimilarUser *similarUsers, int user)
 {
     for (int i = 1; i < user + 1; i++)
@@ -78,7 +110,9 @@ void insertPos(SimilarUser *similarUsers, int UserID, int countSimilar)
     }
 }
 
-void getRateOfMovie(struct ratingsTopN *arr, struct User indexUser, struct User toCompare[], SimilarUser *topK)
+void getRateOfMovie(struct ratingsTopN *arr, 
+    struct User indexUser, 
+    struct User toCompare[], SimilarUser *topK)
 {
     for (int i = 0; i < NEIGHBOR; i++)
     {
@@ -86,15 +120,15 @@ void getRateOfMovie(struct ratingsTopN *arr, struct User indexUser, struct User 
         struct MovieRating *tempA = indexUser.ratings;
         struct MovieRating *tempB = toCompare[index].ratings;
         
-        // The head node is arr[i], and we'll link nodes from its "next" pointer
-        struct ratingsTopN *current = &arr[i];
-        current->next = NULL;  
         
+        struct ratingsTopN *current = NULL;
+        struct ratingsTopN *head = NULL;
+
         while (tempA != NULL && tempB != NULL)
         {
             if (tempA->movieId == tempB->movieId)
             {
-                // Create a new ratingsTopN node
+                // Create new node
                 struct ratingsTopN *newNode = (struct ratingsTopN *)malloc(sizeof(struct ratingsTopN));
                 
                 // put data in node
@@ -104,10 +138,16 @@ void getRateOfMovie(struct ratingsTopN *arr, struct User indexUser, struct User 
                 newNode->pearsonScore = topK[i].similarCount;
                 newNode->next = NULL;
                 
-                // Link new node
-                current->next = newNode;
-                current = newNode;
-                
+                if (head == NULL)                                   // insert head on first time 
+                {
+                    head = newNode;
+                    current = newNode;
+                } else
+                {
+                    current -> next = newNode;
+                    current = newNode;
+                }
+
                 tempA = tempA->next;
                 tempB = tempB->next;
             }
@@ -116,5 +156,6 @@ void getRateOfMovie(struct ratingsTopN *arr, struct User indexUser, struct User 
             else
                 tempB = tempB->next;
         }
+        topK[i].theirMovies = head;
     }
 }

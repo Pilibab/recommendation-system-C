@@ -1,16 +1,14 @@
 #include "colaborative_filtering.h"
 #include "structures.h"
 #include "pearson.h"
+#include "utilities.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #define NEIGHBOR 10
 
-
-
 void createUsermovieMatrix(FILE *usersRateMovie, int userCount, int numMovies, int numRates)
 {
-
     struct User users[userCount];
 
     for (int i = 1; i < userCount + 1; i++)                                  //holly fucking shit 6hrs... this is the solution 
@@ -20,7 +18,6 @@ void createUsermovieMatrix(FILE *usersRateMovie, int userCount, int numMovies, i
         users[i].sumOfRate = 0;
     }
 
-    printf("adding rating\n"); 
     int tempMovieId, tempUserId, tempRate; 
     for (int i = 1; i < numRates; i++)
     {
@@ -28,7 +25,6 @@ void createUsermovieMatrix(FILE *usersRateMovie, int userCount, int numMovies, i
         addRating(&users[tempUserId], tempMovieId, tempRate);
     }
 
-    printf("comparing user\n");
     
     SimilarUser similarUsers[NEIGHBOR];
     struct ratingsTopN kth[NEIGHBOR];
@@ -44,22 +40,30 @@ void createUsermovieMatrix(FILE *usersRateMovie, int userCount, int numMovies, i
         kth->rating[1] = 0;
     }
 
-
     //compare user
     topNeighboor(users[1], users, similarUsers, userCount);
+    printf("getting rate\n");
     getRateOfMovie (kth, users[1], users, similarUsers);
-    printf("printing top neighbor\n");
 
-    for (int i = 0; i < NEIGHBOR; i++)
-        printf("%d: %d \n", similarUsers[i].userId , similarUsers[i].similarCount);
+    printf("computing pearson\n");
+    pearsonCorrelation(similarUsers, users, users[1]);
+    printf("computed!!!\n");
 
-    printf("printing sample\n");
-    
-    struct ratingsTopN * temp = kth[9].next;
-    while(temp != NULL)
-    {
-        printf("%d: %d, %d\n", temp->movieId, temp->rating[0], temp->rating[1]);
-        temp = temp -> next;
+
+    for (int i = 0 ; i < NEIGHBOR; i++)
+    {    
+
+        struct ratingsTopN * temp = similarUsers[i].theirMovies;
+
+        printf("user: %d similarity: %.2lf\n",similarUsers[i].userId, similarUsers[i].theirMovies->pearsonScore);
+
+        int j = 0; 
+        while(temp != NULL && j < 10)
+        {
+            printf("\t%d: %d, %d\n", temp->movieId, temp->rating[0], temp->rating[1]);
+            temp = temp -> next;
+            j++;
+        }
     }
 }
 
@@ -102,12 +106,12 @@ void printSampleLinked(struct User * user)
         printf("user: %d no of rating: %d total rating: %.2lf average: %.2lf\n", 
             i, user[i].countRate, user[i].sumOfRate, avg);
      
-        // struct MovieRating * curr = user[i].ratings;
-        // while (curr != NULL)
-        // {
-        //     printf("%d ", curr->movieId);
-        //     curr = curr->next; 
-        // }
+        struct MovieRating * curr = user[i].ratings;
+        while (curr != NULL)
+        {
+            printf("%d ", curr->movieId);
+            curr = curr->next; 
+        }
         printf("\n");
     }
 }

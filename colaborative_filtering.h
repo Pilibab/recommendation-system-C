@@ -13,7 +13,6 @@
         int numRates);
 
     void addRating(struct User *user, int id, int rating);
-    void printSampleLinked(struct User *user);
 
 
 #endif

@@ -14,8 +14,8 @@ struct MovieRating {
 
 // Structure for storing user data (including ratings)
 struct User {
-    int countRate; 
-    double sumOfRate;                          // add all rate 
+    int countRate;                              // counts the no. of time the user has rated a movie
+    double sumOfRate;                           // adds all the rate that the user made 
     struct MovieRating *ratings; 
 };
 
@@ -30,13 +30,13 @@ struct ratingsTopN
     int movieId;
     int rating[2];
     float pearsonScore; 
-
     struct ratingsTopN * next; 
 };
 
 typedef struct {
     int userId;
     int similarCount;
+    struct ratingsTopN * theirMovies; 
 } SimilarUser;
 
 

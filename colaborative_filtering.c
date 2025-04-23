@@ -28,6 +28,7 @@ void createUsermovieMatrix(FILE *usersRateMovie, int userCount, int numMovies, i
     
     SimilarUser similarUsers[NEIGHBOR];
     struct ratingsTopN kth[NEIGHBOR];
+    struct topSimiliarUser topPearsed[NEIGHBOR];                    //pun peers
 
     for (int i = 0; i < NEIGHBOR; i++) {
         similarUsers[i].userId = 0;
@@ -35,9 +36,12 @@ void createUsermovieMatrix(FILE *usersRateMovie, int userCount, int numMovies, i
 
         kth[i].movieId = 0;
         kth[i].next = NULL;
-        kth[i].pearsonScore = 0.0f;
         kth->rating[0] = 0;
         kth->rating[1] = 0;
+
+        topPearsed->pearsonScore = 0.0f;
+        topPearsed->userId = 0;
+        topPearsed->unseenMovies = NULL;
     }
 
     //compare user
@@ -46,7 +50,7 @@ void createUsermovieMatrix(FILE *usersRateMovie, int userCount, int numMovies, i
     getRateOfMovie (kth, users[1], users, similarUsers);
 
     printf("computing pearson\n");
-    pearsonCorrelation(similarUsers, users, users[1]);
+    pearsonCorrelation(similarUsers, users, users[1], topPearsed);
     printf("computed!!!\n");
 
 
@@ -55,10 +59,10 @@ void createUsermovieMatrix(FILE *usersRateMovie, int userCount, int numMovies, i
 
         struct ratingsTopN * temp = similarUsers[i].theirMovies;
 
-        printf("user: %d similarity: %.2lf\n",similarUsers[i].userId, similarUsers[i].theirMovies->pearsonScore);
+        printf("user: %d similarity: %.4lf\n", topPearsed[i].userId, topPearsed[i].pearsonScore);
 
         int j = 0; 
-        while(temp != NULL && j < 10)
+        while(temp != NULL && j < 3)
         {
             printf("\t%d: %d, %d\n", temp->movieId, temp->rating[0], temp->rating[1]);
             temp = temp -> next;

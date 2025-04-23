@@ -8,8 +8,63 @@
 
 #define sqr(x) (x * x)
 
+void getUnseenMovies(struct topSimiliarUser * pears, struct User targetUser, struct User database[])
+{
+    for (int i = 0; i < NEIGHBOR; i++)
+    {
+        int index = pears[i].userId;
+        struct MovieRating *tempA = targetUser.ratings;
+        struct MovieRating *tempB = database[index].ratings;
+        
+        struct unseen *current = NULL;
+        struct unseen *head = NULL;
 
-void pearsonCorrelation(SimilarUser * topKthN, struct User getUserInfo[], struct User userA )
+        while (tempA != NULL && tempB != NULL)
+        {
+            if (tempA->movieId == tempB->movieId)
+            {
+                tempA = tempA->next;
+                tempB = tempB->next;
+            }
+            else if(tempA->movieId < tempB->movieId)
+                tempA = tempA->next;
+            else
+            {
+                tempB = tempB->next;
+
+                // Create new node
+                struct unseen *newNode = (struct unseen *)malloc(sizeof(struct unseen));
+
+                // put data in node
+                newNode->movieId = tempA->movieId;
+
+                newNode->next = NULL;
+                
+                if (head == NULL)                                   // insert head on first time 
+                {
+                    head = newNode;
+                    current = newNode;
+                    newNode->neighborCount = 1; 
+                    newNode->similaritySum = pears[i].pearsonScore;
+                    newNode->weightedSum = pears[i].pearsonScore * tempB->rating;
+                } else
+                {
+                    newNode->neighborCount ++; 
+                    newNode->similaritySum += pears[i].pearsonScore;
+                    newNode->weightedSum += (pears[i].pearsonScore * tempB->rating);
+                    
+                    current -> next = newNode;
+                    current = newNode;
+                }     
+            }
+        }
+        pears[i].unseenMovies = head;
+    }
+}
+/***
+ * calculate pearson for each top k neighbor 
+ */
+void pearsonCorrelation(SimilarUser * topKthN, struct User getUserInfo[], struct User userA, struct topSimiliarUser * pears)
 {
     for (int nearest10 = 0; nearest10 < NEIGHBOR; nearest10++)
     {
@@ -37,7 +92,8 @@ void pearsonCorrelation(SimilarUser * topKthN, struct User getUserInfo[], struct
 
             curr_UA = curr_UA -> next;
         }   
-        topKthN[nearest10].theirMovies->pearsonScore =  dotProduct_deMean / (sqrt(preMagDemean_UA) * sqrt(preMagDemean_UB));
+        pears[nearest10].userId = userId;
+        pears[nearest10].pearsonScore =  dotProduct_deMean / (sqrt(preMagDemean_UA) * sqrt(preMagDemean_UB));
     }
 }
 /**
@@ -135,7 +191,6 @@ void getRateOfMovie(struct ratingsTopN *arr,
                 newNode->movieId = tempA->movieId;
                 newNode->rating[0] = tempA->rating;
                 newNode->rating[1] = tempB->rating;
-                newNode->pearsonScore = topK[i].similarCount;
                 newNode->next = NULL;
                 
                 if (head == NULL)                                   // insert head on first time 

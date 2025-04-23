@@ -29,8 +29,22 @@ struct ratingsTopN
 {
     int movieId;
     int rating[2];
-    float pearsonScore; 
     struct ratingsTopN * next; 
+};
+
+struct topSimiliarUser
+{
+    float pearsonScore; 
+    int userId;
+    struct unseen * unseenMovies;
+};
+
+struct unseen { 
+    int movieId;
+    float weightedSum;    // ∑(similarity × rating)
+    float similaritySum;  // ∑|similarity|
+    int neighborCount;    // how many neighbors rated this movie
+    struct unseen *next;  // optional: for linked list chaining
 };
 
 typedef struct {

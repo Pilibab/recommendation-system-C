@@ -28,14 +28,15 @@ struct dataSet
 struct ratingsTopN
 {
     int movieId;
-    int rating[2];
+    int rating[2];                              //0->A, 1-> B
     struct ratingsTopN * next; 
 };
 
-struct topSimiliarUser
+struct topSimiliarUser                          //arr of top pearson
 {
     float pearsonScore; 
     int userId;
+    struct ratingsTopN * seenMovies; 
     struct unseen * unseenMovies;
 };
 

@@ -5,13 +5,24 @@
 
 #define NEIGHBOR 10
 
-    // float pearsonCorrelation(struct User *user);
-    void topNeighboor(struct User indexUser, struct User toCompare[], SimilarUser *similarUsers, int user);
-    void insertPos(SimilarUser *similarUsers, int UserID, int countSimilar);
-    void getRateOfMovie(struct ratingsTopN *arr, struct User indexUser, struct User toCompare[], SimilarUser *topK);
-    void pearsonCorrelation(SimilarUser * topKthN, struct User getUserInfo[], struct User userA, struct topSimiliarUser * pears);
-    void getUnseenMovies(struct topSimiliarUser * pears, struct User targetUser, struct User database[]);
+    void getUnseenMovies(struct topSimiliarUser * pears, 
+        struct User targetUser, 
+        struct User database[]);
 
+    void pearsonCorrelation(struct ratingsTopN * listSameMovies , 
+        struct topSimiliarUser * pears,  
+        struct User * UserA,
+        struct User * UserB,
+        int UserB_ID);
 
+    void topNeighboor(struct User indexUser, 
+        struct User toCompare[], 
+        int user, struct topSimiliarUser * pears);
+
+    void insertPos(struct topSimiliarUser * pears, 
+        int UserID, float pScore, 
+        struct ratingsTopN * listSameMovies );
+    struct ratingsTopN * getRateOfMovie(struct MovieRating *a, struct MovieRating *b);
+    void freeLinkedList(struct ratingsTopN * head );
 
 #endif

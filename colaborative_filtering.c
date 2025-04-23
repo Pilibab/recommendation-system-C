@@ -11,7 +11,7 @@ void createUsermovieMatrix(FILE *usersRateMovie, int userCount, int numMovies, i
 {
     struct User users[userCount];
 
-    for (int i = 1; i < userCount + 1; i++)                                  //holly fucking shit 6hrs... this is the solution 
+    for (int i = 0; i < userCount + 1; i++)                                  //holly fucking shit 6hrs... this is the solution 
     {
         users[i].ratings = NULL;
         users[i].countRate = 0;
@@ -25,49 +25,34 @@ void createUsermovieMatrix(FILE *usersRateMovie, int userCount, int numMovies, i
         addRating(&users[tempUserId], tempMovieId, tempRate);
     }
 
-    
-    SimilarUser similarUsers[NEIGHBOR];
-    struct ratingsTopN kth[NEIGHBOR];
     struct topSimiliarUser topPearsed[NEIGHBOR];                    //pun peers
 
     for (int i = 0; i < NEIGHBOR; i++) {
-        similarUsers[i].userId = 0;
-        similarUsers[i].similarCount = 0;
 
-        kth[i].movieId = 0;
-        kth[i].next = NULL;
-        kth->rating[0] = 0;
-        kth->rating[1] = 0;
-
-        topPearsed->pearsonScore = 0.0f;
-        topPearsed->userId = 0;
-        topPearsed->unseenMovies = NULL;
+        topPearsed[i].pearsonScore = 0.0f;
+        topPearsed[i].userId = 0;
+        topPearsed[i].unseenMovies = NULL;
+        topPearsed[i].seenMovies = NULL;
     }
 
     //compare user
-    topNeighboor(users[1], users, similarUsers, userCount);
+    printf("getting top N\n");
+    topNeighboor(users[1], users, userCount, topPearsed);
     printf("getting rate\n");
-    getRateOfMovie (kth, users[1], users, similarUsers);
 
-    printf("computing pearson\n");
-    pearsonCorrelation(similarUsers, users, users[1], topPearsed);
-    printf("computed!!!\n");
-
-
+    printf("Top similar users (Pearson):\n");
     for (int i = 0 ; i < NEIGHBOR; i++)
-    {    
+    {
+        struct ratingsTopN * temp = topPearsed[i].seenMovies;
+        printf("%d => user: %d similarity: %.4lf\n",i, topPearsed[i].userId, topPearsed[i].pearsonScore);
 
-        struct ratingsTopN * temp = similarUsers[i].theirMovies;
-
-        printf("user: %d similarity: %.4lf\n", topPearsed[i].userId, topPearsed[i].pearsonScore);
-
-        int j = 0; 
-        while(temp != NULL && j < 3)
-        {
-            printf("\t%d: %d, %d\n", temp->movieId, temp->rating[0], temp->rating[1]);
-            temp = temp -> next;
-            j++;
-        }
+        int j = 0;
+        // while(temp != NULL && j < 3)
+        // {
+        //     printf("\tMovieID: %d, Ratings: [%d, %d]\n", temp->movieId, temp->rating[0], temp->rating[1]);
+        //     temp = temp->next;
+        //     j++;
+        // }
     }
 }
 
@@ -90,6 +75,7 @@ void addRating(struct User *user, int id, int rating)
         temp = head; 
         while (temp->next != NULL && temp->next->movieId < id)
             temp = temp -> next;
+
         newN->next = temp -> next;
         temp -> next = newN;
     }

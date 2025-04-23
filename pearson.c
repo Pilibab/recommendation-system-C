@@ -52,7 +52,7 @@ void getUnseenMovies(struct topSimiliarUser * pears, struct User targetUser, str
                     newNode->neighborCount ++; 
                     newNode->similaritySum += pears[i].pearsonScore;
                     newNode->weightedSum += (pears[i].pearsonScore * tempB->rating);
-                    
+
                     current -> next = newNode;
                     current = newNode;
                 }     
@@ -63,73 +63,95 @@ void getUnseenMovies(struct topSimiliarUser * pears, struct User targetUser, str
 }
 /***
  * calculate pearson for each top k neighbor 
+ * A is target user 
+ * B is from data base
  */
-void pearsonCorrelation(SimilarUser * topKthN, struct User getUserInfo[], struct User userA, struct topSimiliarUser * pears)
+void pearsonCorrelation(struct ratingsTopN * listSameMovies , 
+    struct topSimiliarUser * pears,  
+    struct User * UserA,
+    struct User * UserB,
+    int UserB_ID)
 {
-    for (int nearest10 = 0; nearest10 < NEIGHBOR; nearest10++)
+
+    int no_of_rate_UA= UserA->countRate,  no_of_rate_UB = UserB->countRate;
+
+    double count_UB = UserB->sumOfRate, count_UA = UserA->countRate;
+
+    float average_UB = (count_UB / no_of_rate_UB);
+    float average_UA = (count_UA / no_of_rate_UA); 
+
+
+    float dotProduct_deMean = 0;
+    float preMagDemean_UA = 0, preMagDemean_UB = 0;                     //preMag - before getting the mag niture 
+
+    struct ratingsTopN * head = listSameMovies; 
+    struct ratingsTopN * curr = listSameMovies; 
+    while (curr != NULL)
     {
+        float demean_UA = (curr->rating[0] - average_UA);
+        float demean_UB = (curr->rating[1] - average_UB);
 
-        int userId = topKthN[nearest10].userId;
-        int no_of_rate = getUserInfo[userId].countRate;
-        double count_UB = getUserInfo[userId].sumOfRate, count_UA = userA.sumOfRate;
+        dotProduct_deMean += demean_UA * demean_UB; 
+        preMagDemean_UA += sqr(demean_UA); 
+        preMagDemean_UB += sqr(demean_UB); 
 
-        float average_UB = (count_UB / no_of_rate);
-        float average_UA = (count_UA / no_of_rate); 
-
-        struct ratingsTopN * curr_UA = topKthN[nearest10].theirMovies;
-
-        float dotProduct_deMean = 0;
-        float preMagDemean_UA = 0, preMagDemean_UB = 0;                     //preMag - before getting the mag niture 
-
-        while (curr_UA != NULL )
-        {
-            float demean_UA = (curr_UA->rating[0] - average_UA);
-            float demean_UB = (curr_UA->rating[1] - average_UB);
-
-            dotProduct_deMean += demean_UA * demean_UB; 
-            preMagDemean_UA += sqr(demean_UA); 
-            preMagDemean_UB += sqr(demean_UB); 
-
-            curr_UA = curr_UA -> next;
-        }   
-        pears[nearest10].userId = userId;
-        pears[nearest10].pearsonScore =  dotProduct_deMean / (sqrt(preMagDemean_UA) * sqrt(preMagDemean_UB));
-    }
+        curr = curr -> next;
+    }   
+    float pScore = dotProduct_deMean / (sqrt(preMagDemean_UA) * sqrt(preMagDemean_UB));
+    insertPos(pears, UserB_ID, pScore, listSameMovies);
 }
 /**
  * compiles the top 10 most similar user (interms of no of similar watched movie)
  */
-void topNeighboor(struct User indexUser, struct User toCompare[], SimilarUser *similarUsers, int user)
+void topNeighboor(struct User indexUser, 
+    struct User toCompare[], 
+    int user, struct topSimiliarUser * pears)
 {
     for (int i = 1; i < user + 1; i++)
     {
-        int countSimilar = 0;
         struct MovieRating * tempA = toCompare[i].ratings;                  //arr struct
-        struct MovieRating * tempB = indexUser.ratings;                    //user to comp
+        struct MovieRating * tempB = indexUser.ratings;                     //user to comp
 
         struct User * UserA = &indexUser;
         struct User * UserB = &toCompare[i];
 
+        struct ratingsTopN *head = NULL;
+        struct ratingsTopN *current = NULL;
+
+        int countSimilar = 0;
         while (tempA != NULL && tempB != NULL)
         {
             if (tempA->movieId == tempB->movieId)
             {
+                // printf("flag\n");
+                struct ratingsTopN *newNode = getRateOfMovie(tempB, tempA);
+
                 countSimilar++;
                 tempA = tempA->next;
                 tempB = tempB->next;
+
+                // printf("flag\n");
+
+                if (head == NULL)
+                {
+                    head = newNode;
+                    current = newNode;
+                } else
+                {
+                    current->next = newNode;
+                    current = newNode;
+                }
             }
             else if(tempA->movieId < tempB->movieId)
                 tempA = tempA->next;
             else
                 tempB = tempB->next;
         }
-
-        //arr is initially 0.. check if similarity > min similarity in arr
-        //im quite the genuis ngnl
-        
-        // printf("%d: %d\n", i, countSimilar);
-        if (countSimilar >= similarUsers[9].similarCount)  
-            insertPos(similarUsers, i, countSimilar);
+        if (countSimilar > 5)
+        {      
+            pearsonCorrelation(head, pears, UserA, UserB, i);
+        } else
+            freeLinkedList(head);                                   //free space
     } 
 }
 
@@ -137,80 +159,46 @@ void topNeighboor(struct User indexUser, struct User toCompare[], SimilarUser *s
  * modify topNeigbor array (sort and insertion), insert then shift
  * check if the array size is 10 before inserting (over write the last element)
  */
-void insertPos(SimilarUser *similarUsers, int UserID, int countSimilar) 
+void insertPos(struct topSimiliarUser * pears, int UserID, float pScore, struct ratingsTopN * listSameMovies ) 
 {
-    int checkArr = 0, 
-        flagShift = 0, 
-        i = 0;;
-
-    if (similarUsers[0].similarCount == 0){         //case: first time inserting
-        similarUsers[0].userId = UserID;
-        similarUsers[0].similarCount = countSimilar;        
-    } else {
-        while (i < NEIGHBOR && similarUsers[i].similarCount >= countSimilar)
-            {
-                i++;
-                flagShift = 1;
-            }
-
-        if (flagShift)                          //shift array index
-        {
-            int tempUser = similarUsers->userId, tempSim  = similarUsers->similarCount ;
-
-            for (int j = NEIGHBOR - 1; j >= i; j--)         //wr tf did 2 comefrom???
-                similarUsers[j + 1] = similarUsers[j];
- 
-            similarUsers[i].similarCount = countSimilar;
-            similarUsers[i].userId = UserID;
-        }
-    }
-}
-
-void getRateOfMovie(struct ratingsTopN *arr, 
-    struct User indexUser, 
-    struct User toCompare[], SimilarUser *topK)
-{
+    int insertIndex = -1;
     for (int i = 0; i < NEIGHBOR; i++)
     {
-        int index = topK[i].userId;
-        struct MovieRating *tempA = indexUser.ratings;
-        struct MovieRating *tempB = toCompare[index].ratings;
-        
-        
-        struct ratingsTopN *current = NULL;
-        struct ratingsTopN *head = NULL;
-
-        while (tempA != NULL && tempB != NULL)
-        {
-            if (tempA->movieId == tempB->movieId)
-            {
-                // Create new node
-                struct ratingsTopN *newNode = (struct ratingsTopN *)malloc(sizeof(struct ratingsTopN));
-                
-                // put data in node
-                newNode->movieId = tempA->movieId;
-                newNode->rating[0] = tempA->rating;
-                newNode->rating[1] = tempB->rating;
-                newNode->next = NULL;
-                
-                if (head == NULL)                                   // insert head on first time 
-                {
-                    head = newNode;
-                    current = newNode;
-                } else
-                {
-                    current -> next = newNode;
-                    current = newNode;
-                }
-
-                tempA = tempA->next;
-                tempB = tempB->next;
-            }
-            else if(tempA->movieId < tempB->movieId)
-                tempA = tempA->next;
-            else
-                tempB = tempB->next;
+        if (pears[i].pearsonScore == 0.0f) { // Empty slot
+            insertIndex = i;
+            break;
+        } 
+        else if (pScore > pears[i].pearsonScore) {
+            insertIndex = i;
+            break;
         }
-        topK[i].theirMovies = head;
+    }
+    if (insertIndex == -1) return;
+
+    for (int i = NEIGHBOR - 1; i > insertIndex; i--) pears[i] = pears[i - 1];
+    pears[insertIndex].userId = UserID;
+    pears[insertIndex].pearsonScore = pScore;
+    pears[insertIndex].seenMovies = listSameMovies;
+    
+}
+
+struct ratingsTopN * getRateOfMovie(struct MovieRating *a, struct MovieRating *b)
+{
+    struct ratingsTopN *newNode = (struct ratingsTopN *)malloc(sizeof(struct ratingsTopN));
+    newNode->movieId = a->movieId;
+    newNode->rating[0] = a->rating;
+    newNode->rating[1] = b->rating;
+    newNode->next = NULL;
+    return newNode;
+}
+
+void freeLinkedList(struct ratingsTopN * head )
+{
+    struct ratingsTopN *temp = NULL;
+    while (head != NULL)
+    {
+        temp = head;
+        head = head->next;
+        free(temp);
     }
 }

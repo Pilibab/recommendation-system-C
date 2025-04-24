@@ -59,7 +59,7 @@ int main()
     // printSample(movies);
 
     printf("creating movie matrix...\n");
-    createUsermovieMatrix(dataFile, users, items, ratings);
+    createUsermovieMatrix(dataFile, users, items, ratings, movies);
 
 
     

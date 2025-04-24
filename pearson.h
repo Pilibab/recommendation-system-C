@@ -5,7 +5,7 @@
 
 #define NEIGHBOR 10
 
-    void getUnseenMovies(struct topSimiliarUser *pears, struct unseen * unseenHead, struct  User toCompare[]);
+    void getUnseenMovies(struct topSimiliarUser *pears, struct unseen ** unseenHead, struct  User toCompare[]);
 
     void pearsonCorrelation(struct ratingsTopN * listSameMovies , 
         struct topSimiliarUser * pears,  
@@ -28,4 +28,5 @@
         float rating, 
         float similarity);
 
+    void predictRate(struct unseen * unseenHead);
 #endif

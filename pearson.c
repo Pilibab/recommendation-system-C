@@ -9,22 +9,32 @@
 
 #define sqr(x) (x * x)
 
-void getUnseenMovies(struct topSimiliarUser * pears, struct unseen * unseenHead, struct  User toCompare[])
+void predictRate(struct unseen * unseenHead)
+{
+    struct unseen * temp = unseenHead;
+
+    while (temp != NULL)
+    {
+        float predictedRate = temp->weightedSum / temp->similaritySum;
+        temp->predictRate = predictedRate;
+        temp = temp->next;
+    }
+}
+
+void getUnseenMovies(struct topSimiliarUser * pears, struct unseen ** unseenHead, struct  User toCompare[])
 {
     for (int i = 0; i < NEIGHBOR; i++)
     {
         int index = pears[i].userId;
-        struct unseen *head = unseenHead;
 
         struct ratingsTopN * curr = pears[i].seenMovies;                        //watched movies by user and index Neigh
         struct  MovieRating * allMoviesDb = toCompare[index].ratings;           //all movies Data base User watched -> get unwatched 
-
         while (allMoviesDb != NULL)
         {
 
             if (curr == NULL) 
             {
-                insertUnwatched(&head, allMoviesDb->movieId, allMoviesDb->rating ,pears[i].pearsonScore);
+                insertUnwatched(unseenHead, allMoviesDb->movieId, allMoviesDb->rating ,pears[i].pearsonScore);
                 allMoviesDb = allMoviesDb->next;
             } else 
             {
@@ -35,7 +45,7 @@ void getUnseenMovies(struct topSimiliarUser * pears, struct unseen * unseenHead,
                 } 
                 else if ((curr->movieId > allMoviesDb->movieId )){
                     //movie not seen by user 
-                    insertUnwatched(&head, allMoviesDb->movieId, allMoviesDb->rating ,pears[i].pearsonScore);
+                    insertUnwatched(unseenHead, allMoviesDb->movieId, allMoviesDb->rating ,pears[i].pearsonScore);
                     allMoviesDb = allMoviesDb->next;
                 }   else 
                     // This shouldn't happen if commonMovies is a subset of allMoviesDb (meaning allMoviesDb is from curr)
@@ -45,43 +55,69 @@ void getUnseenMovies(struct topSimiliarUser * pears, struct unseen * unseenHead,
     }
 }
 
-void insertUnwatched ( struct unseen **head, 
+void insertUnwatched(struct unseen **head, 
     int movieId, 
     float rating, 
     float similarity)
 {
-    struct unseen *newNode = (struct unseen *)malloc(sizeof(struct unseen));
-    newNode->movieId = movieId;
-    newNode->similaritySum = similarity;
-    newNode->weightedSum = similarity * rating;
-    newNode->neighborCount = 1;
-    newNode->next = NULL;
 
-    struct unseen *curr = *head;
-    if (head == NULL || movieId < (*head)->movieId)
-    {
+    if (movieId == 0) {
+        printf("Adding or updating movie ID 0: similarity=%.2f, rating=%.2f, current count=%d\n", 
+               similarity, rating, (*head)->neighborCount);
+    }
+
+    // Check if list is empty
+    if (*head == NULL) {
+        struct unseen *newNode = (struct unseen *)malloc(sizeof(struct unseen));
+        newNode->movieId = movieId;
+        newNode->similaritySum = similarity;
+        newNode->weightedSum = similarity * rating;
+        newNode->neighborCount = 1;
+        newNode->next = NULL;
+        *head = newNode;
+        return;
+    }
+    
+    // Check if movie should be inserted at head (smaller ID)
+    if (movieId < (*head)->movieId) {
+        struct unseen *newNode = (struct unseen *)malloc(sizeof(struct unseen));
+        newNode->movieId = movieId;
+        newNode->similaritySum = similarity;
+        newNode->weightedSum = similarity * rating;
+        newNode->neighborCount = 1;
         newNode->next = *head;
         *head = newNode;
+        return;
     }
-    else 
-    {
-        while (curr->next != NULL && curr->movieId < movieId)
-            curr = curr->next;
-            
-        // Check if movie already exists in list
-        if (curr->next != NULL && curr->next->movieId == movieId) 
-        {
-            // Update existing entry
-            struct unseen *existing = curr->next;
-            existing->similaritySum += similarity;
-            existing->weightedSum += similarity * rating;
-            existing->neighborCount++;
-            free(newNode);                                                                  // Don't need the new node
-        } else {
-            // Insert new node
-            newNode->next = curr->next;
-            curr->next = newNode;
-        }
+    
+    // Check if movie already exists at head
+    if ((*head)->movieId == movieId) {
+        (*head)->similaritySum += similarity;
+        (*head)->weightedSum += similarity * rating;
+        (*head)->neighborCount++;
+        return;
+    }
+    
+    // Find position in sorted list
+    struct unseen *curr = *head;
+    while (curr->next != NULL && curr->next->movieId < movieId) {
+        curr = curr->next;
+    }
+    
+    // Check if movie already exists
+    if (curr->next != NULL && curr->next->movieId == movieId) {
+        curr->next->similaritySum += similarity;
+        curr->next->weightedSum += similarity * rating;
+        curr->next->neighborCount++;
+    } else {
+        // Insert new node
+        struct unseen *newNode = (struct unseen *)malloc(sizeof(struct unseen));
+        newNode->movieId = movieId;
+        newNode->similaritySum = similarity;
+        newNode->weightedSum = similarity * rating;
+        newNode->neighborCount = 1;
+        newNode->next = curr->next;
+        curr->next = newNode;
     }
 }
 /***

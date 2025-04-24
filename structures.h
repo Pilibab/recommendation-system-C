@@ -43,6 +43,7 @@ struct unseen {
     int movieId;
     float weightedSum;    // ∑(similarity × rating)
     float similaritySum;  // ∑|similarity|
+    float predictRate;
     int neighborCount;    // how many neighbors rated this movie
     struct unseen *next;  // optional: for linked list chaining
 };

@@ -10,7 +10,8 @@
         FILE *usersRateMovie, 
         int user, 
         int numMovies, 
-        int numRates);
+        int numRates, 
+        struct dataSet movies[]);
 
     void addRating(struct User *user, int id, int rating);
 

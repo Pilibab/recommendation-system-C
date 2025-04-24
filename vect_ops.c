@@ -9,8 +9,6 @@
 #include "structures.h"
 
 
-
-
 /**
  * returns single int -> summation of element wise vector multiplication A[i] * B[j]
  */

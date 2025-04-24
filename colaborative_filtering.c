@@ -2,12 +2,14 @@
 #include "structures.h"
 #include "pearson.h"
 #include "utilities.h"
+#include "clean_pearson.h"
+
 
 #include <stdio.h>
 #include <stdlib.h>
 #define NEIGHBOR 10
 
-void createUsermovieMatrix(FILE *usersRateMovie, int userCount, int numMovies, int numRates)
+void createUsermovieMatrix(FILE *usersRateMovie, int userCount, int numMovies, int numRates,  struct dataSet movies[])
 {
     struct User users[userCount];
 
@@ -26,8 +28,7 @@ void createUsermovieMatrix(FILE *usersRateMovie, int userCount, int numMovies, i
     }
 
     struct topSimiliarUser topPearsed[NEIGHBOR];                    //pun peers
-    struct unseen listofUnwatched;                                  //head of linked list (movies that the target user hasnt watched)
-    listofUnwatched.next = NULL;                                  
+    struct unseen *listofUnwatched = NULL;                                   //head of linked list (movies that the target user hasnt watched)                                 
 
 
     for (int i = 0; i < NEIGHBOR; i++) 
@@ -61,15 +62,28 @@ void createUsermovieMatrix(FILE *usersRateMovie, int userCount, int numMovies, i
 
     printf("getting unseen\n");
     getUnseenMovies(topPearsed, &listofUnwatched, users);
+
+    printf("done\nCleaning data\n");
+    listofUnwatched = setThreshold(listofUnwatched);
+    
     printf("done\n");
 
-    struct unseen * temp = &listofUnwatched;
+    predictRate(listofUnwatched);
 
+    printf("other also liked\n");
+    struct unseen * rankedUnseen = NULL; 
+
+    
+    struct unseen * temp = listofUnwatched;
     while (temp != NULL)
     {
-        printf("\tmovie: %d, N: %d, [%.2f, %.2f]\n", temp->movieId, temp->neighborCount, temp->similaritySum, temp->weightedSum);
+        int index = temp->movieId;
+        printf("we recomend %-30s \n\tpredicted rating is: %f\n", movies[index].title, temp->predictRate);
+        // printf("\tmovie: %d, N: %d, [%.2f, %.2f]\n", temp->movieId, temp->neighborCount, temp->similaritySum, temp->weightedSum);
         temp = temp->next;
     }
+    printf("done\n");
+
 }
 
 void addRating(struct User *user, int id, int rating) 

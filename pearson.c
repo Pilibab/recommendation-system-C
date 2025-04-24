@@ -5,60 +5,83 @@
 #include "pearson.h"
 #include "structures.h"
 #define NEIGHBOR 10
+#define MAXTHRESHOLD 4
 
 #define sqr(x) (x * x)
 
-void getUnseenMovies(struct topSimiliarUser * pears, struct User targetUser, struct User database[])
+void getUnseenMovies(struct topSimiliarUser * pears, struct unseen * unseenHead, struct  User toCompare[])
 {
     for (int i = 0; i < NEIGHBOR; i++)
     {
         int index = pears[i].userId;
-        struct MovieRating *tempA = targetUser.ratings;
-        struct MovieRating *tempB = database[index].ratings;
-        
-        struct unseen *current = NULL;
-        struct unseen *head = NULL;
+        struct unseen *head = unseenHead;
 
-        while (tempA != NULL && tempB != NULL)
+        struct ratingsTopN * curr = pears[i].seenMovies;                        //watched movies by user and index Neigh
+        struct  MovieRating * allMoviesDb = toCompare[index].ratings;           //all movies Data base User watched -> get unwatched 
+
+        while (allMoviesDb != NULL)
         {
-            if (tempA->movieId == tempB->movieId)
+
+            if (curr == NULL) 
             {
-                tempA = tempA->next;
-                tempB = tempB->next;
-            }
-            else if(tempA->movieId < tempB->movieId)
-                tempA = tempA->next;
-            else
+                insertUnwatched(&head, allMoviesDb->movieId, allMoviesDb->rating ,pears[i].pearsonScore);
+                allMoviesDb = allMoviesDb->next;
+            } else 
             {
-                tempB = tempB->next;
-
-                // Create new node
-                struct unseen *newNode = (struct unseen *)malloc(sizeof(struct unseen));
-
-                // put data in node
-                newNode->movieId = tempA->movieId;
-
-                newNode->next = NULL;
-                
-                if (head == NULL)                                   // insert head on first time 
+                if ((curr->movieId == allMoviesDb->movieId))
                 {
-                    head = newNode;
-                    current = newNode;
-                    newNode->neighborCount = 1; 
-                    newNode->similaritySum = pears[i].pearsonScore;
-                    newNode->weightedSum = pears[i].pearsonScore * tempB->rating;
-                } else
-                {
-                    newNode->neighborCount ++; 
-                    newNode->similaritySum += pears[i].pearsonScore;
-                    newNode->weightedSum += (pears[i].pearsonScore * tempB->rating);
-
-                    current -> next = newNode;
-                    current = newNode;
-                }     
+                    allMoviesDb = allMoviesDb->next;
+                    curr = curr->next;
+                } 
+                else if ((curr->movieId > allMoviesDb->movieId )){
+                    //movie not seen by user 
+                    insertUnwatched(&head, allMoviesDb->movieId, allMoviesDb->rating ,pears[i].pearsonScore);
+                    allMoviesDb = allMoviesDb->next;
+                }   else 
+                    // This shouldn't happen if commonMovies is a subset of allMoviesDb (meaning allMoviesDb is from curr)
+                    curr = curr->next;  
             }
         }
-        pears[i].unseenMovies = head;
+    }
+}
+
+void insertUnwatched ( struct unseen **head, 
+    int movieId, 
+    float rating, 
+    float similarity)
+{
+    struct unseen *newNode = (struct unseen *)malloc(sizeof(struct unseen));
+    newNode->movieId = movieId;
+    newNode->similaritySum = similarity;
+    newNode->weightedSum = similarity * rating;
+    newNode->neighborCount = 1;
+    newNode->next = NULL;
+
+    struct unseen *curr = *head;
+    if (head == NULL || movieId < (*head)->movieId)
+    {
+        newNode->next = *head;
+        *head = newNode;
+    }
+    else 
+    {
+        while (curr->next != NULL && curr->movieId < movieId)
+            curr = curr->next;
+            
+        // Check if movie already exists in list
+        if (curr->next != NULL && curr->next->movieId == movieId) 
+        {
+            // Update existing entry
+            struct unseen *existing = curr->next;
+            existing->similaritySum += similarity;
+            existing->weightedSum += similarity * rating;
+            existing->neighborCount++;
+            free(newNode);                                                                  // Don't need the new node
+        } else {
+            // Insert new node
+            newNode->next = curr->next;
+            curr->next = newNode;
+        }
     }
 }
 /***
@@ -75,7 +98,7 @@ void pearsonCorrelation(struct ratingsTopN * listSameMovies ,
 
     int no_of_rate_UA= UserA->countRate,  no_of_rate_UB = UserB->countRate;
 
-    double count_UB = UserB->sumOfRate, count_UA = UserA->countRate;
+    double count_UB = UserB->sumOfRate, count_UA = UserA->sumOfRate;
 
     float average_UB = (count_UB / no_of_rate_UB);
     float average_UA = (count_UA / no_of_rate_UA); 
@@ -98,6 +121,8 @@ void pearsonCorrelation(struct ratingsTopN * listSameMovies ,
         curr = curr -> next;
     }   
     float pScore = dotProduct_deMean / (sqrt(preMagDemean_UA) * sqrt(preMagDemean_UB));
+    if (pScore == 1)
+        printf("raise found perfect match");
     insertPos(pears, UserB_ID, pScore, listSameMovies);
 }
 /**
@@ -109,6 +134,7 @@ void topNeighboor(struct User indexUser,
 {
     for (int i = 1; i < user + 1; i++)
     {
+        if (i == 1) continue;
         struct MovieRating * tempA = toCompare[i].ratings;                  //arr struct
         struct MovieRating * tempB = indexUser.ratings;                     //user to comp
 
@@ -147,7 +173,7 @@ void topNeighboor(struct User indexUser,
             else
                 tempB = tempB->next;
         }
-        if (countSimilar > 5)
+        if (countSimilar > MAXTHRESHOLD)
         {      
             pearsonCorrelation(head, pears, UserA, UserB, i);
         } else
@@ -179,7 +205,6 @@ void insertPos(struct topSimiliarUser * pears, int UserID, float pScore, struct 
     pears[insertIndex].userId = UserID;
     pears[insertIndex].pearsonScore = pScore;
     pears[insertIndex].seenMovies = listSameMovies;
-    
 }
 
 struct ratingsTopN * getRateOfMovie(struct MovieRating *a, struct MovieRating *b)

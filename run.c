@@ -53,9 +53,6 @@ int main()
     printf("loading data...\n");
     loadData(movies, items, itemFile, &validMovieCount, genreFreqCounter);
 
-
-
-
     // Now pass movies to addWeight()
     printf("adding weights...\n");
     addWeight(movies, validMovieCount, weights, genreFreqCounter);

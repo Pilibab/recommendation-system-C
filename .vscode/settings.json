@@ -8,6 +8,7 @@
         "get_data.h": "c",
         "stdio.h": "c",
         "stdlib.h": "c",
-        "structures.h": "c"
+        "structures.h": "c",
+        "pearson.h": "c"
     }
 }

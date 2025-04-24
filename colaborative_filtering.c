@@ -26,33 +26,49 @@ void createUsermovieMatrix(FILE *usersRateMovie, int userCount, int numMovies, i
     }
 
     struct topSimiliarUser topPearsed[NEIGHBOR];                    //pun peers
+    struct unseen listofUnwatched;                                  //head of linked list (movies that the target user hasnt watched)
+    listofUnwatched.next = NULL;                                  
 
-    for (int i = 0; i < NEIGHBOR; i++) {
 
+    for (int i = 0; i < NEIGHBOR; i++) 
+    {
         topPearsed[i].pearsonScore = 0.0f;
         topPearsed[i].userId = 0;
-        topPearsed[i].unseenMovies = NULL;
         topPearsed[i].seenMovies = NULL;
     }
 
     //compare user
     printf("getting top N\n");
-    topNeighboor(users[1], users, userCount, topPearsed);
+
+    int target = 1;
+
+    topNeighboor(users[target], users, userCount, topPearsed);
     printf("getting rate\n");
 
     printf("Top similar users (Pearson):\n");
-    for (int i = 0 ; i < NEIGHBOR; i++)
-    {
-        struct ratingsTopN * temp = topPearsed[i].seenMovies;
-        printf("%d => user: %d similarity: %.4lf\n",i, topPearsed[i].userId, topPearsed[i].pearsonScore);
 
-        int j = 0;
-        // while(temp != NULL && j < 3)
-        // {
-        //     printf("\tMovieID: %d, Ratings: [%d, %d]\n", temp->movieId, temp->rating[0], temp->rating[1]);
-        //     temp = temp->next;
-        //     j++;
-        // }
+    // for (int i = 0 ; i < NEIGHBOR; i++)
+    // {
+    //     struct ratingsTopN * temp = topPearsed[i].seenMovies;
+    //     printf("%d => user: %d similarity: %.4lf\n",i, topPearsed[i].userId, topPearsed[i].pearsonScore);
+
+    //     while(temp != NULL)
+    //     {
+    //         printf("\tMovieID: %d, Ratings: [%d, %d]\n", temp->movieId, temp->rating[0], temp->rating[1]);
+    //         temp = temp->next;
+    //     }
+    // }
+
+    printf("getting unseen\n");
+    getUnseenMovies(topPearsed, &listofUnwatched, users);
+    printf("done\n");
+
+    struct unseen * temp = &listofUnwatched;
+
+    while (temp != NULL)
+    {
+        printf("\tmovie: %d, N: %d, [%.2f, %.2f]\n", temp->movieId, temp->neighborCount, temp->similaritySum, temp->weightedSum);
+        temp = temp->next;
     }
 }
 

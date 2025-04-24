@@ -37,7 +37,6 @@ struct topSimiliarUser                          //arr of top pearson
     float pearsonScore; 
     int userId;
     struct ratingsTopN * seenMovies; 
-    struct unseen * unseenMovies;
 };
 
 struct unseen { 

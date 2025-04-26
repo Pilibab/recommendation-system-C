@@ -9,17 +9,7 @@
 
 #define sqr(x) (x * x)
 
-void predictRate(struct unseen * unseenHead)
-{
-    struct unseen * temp = unseenHead;
 
-    while (temp != NULL)
-    {
-        float predictedRate = temp->weightedSum / temp->similaritySum;
-        temp->predictRate = predictedRate;
-        temp = temp->next;
-    }
-}
 
 void getUnseenMovies(struct topSimiliarUser * pears, struct unseen ** unseenHead, struct  User toCompare[])
 {
@@ -52,6 +42,18 @@ void getUnseenMovies(struct topSimiliarUser * pears, struct unseen ** unseenHead
                     curr = curr->next;  
             }
         }
+    }
+}
+
+void predictRate(struct unseen * unseenHead)
+{
+    struct unseen * temp = unseenHead;
+
+    while (temp != NULL)
+    {
+        float predictedRate = temp->weightedSum / temp->similaritySum;
+        temp->predictRate = predictedRate;
+        temp = temp->next;
     }
 }
 

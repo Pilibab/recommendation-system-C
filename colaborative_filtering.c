@@ -37,10 +37,9 @@ void createUsermovieMatrix(FILE *usersRateMovie,
     for (int i = 1; i < numRates; i++)
     {
         fscanf(usersRateMovie, "%d %d %d %*d", &tempUserId, &tempMovieId, &tempRate);
-        addRating(&users[tempUserId], tempMovieId, tempRate);
+        addRating(&users[tempUserId],  tempMovieId - 1, tempRate);
     }
 
-    //compare user
 
 
 
@@ -56,22 +55,31 @@ void createUsermovieMatrix(FILE *usersRateMovie,
 
     struct unseen * rankedUnseen = NULL; 
 
-    struct unseen * temp = listofUnwatched;
-    while (temp != NULL)
-    {
-        int index = temp->movieId;
-        printf("we recomend %-30s \n\tpredicted rating is: %f\n", movies[index].title, temp->predictRate);
-        // printf("\tmovie: %d, N: %d, [%.2f, %.2f]\n", temp->movieId, temp->neighborCount, temp->similaritySum, temp->weightedSum);
-        temp = temp->next;
-    }
+    // struct unseen * temp = listofUnwatched;
+    // while (temp != NULL)
+    // {
+    //     int index = temp->movieId;
+    //     printf("we recomend %-30s \n\tpredicted rating is: %f\n", movies[index].title, temp->predictRate);
+    //     // printf("\tmovie: %d, N: %d, [%.2f, %.2f]\n", temp->movieId, temp->neighborCount, temp->similaritySum, temp->weightedSum);
+    //     temp = temp->next;
+    // }
 
     struct unseen *listOfWatched = NULL;   
 
     printf("getting watched");
     watched(topPearsed, &listOfWatched, users);
+    predictRate(listOfWatched);
 
-    float w[5] = {0,0,0,0,0};                               //initial weights
-    float f[4];
+        struct unseen * temp = listOfWatched;
+    // while (temp != NULL)
+    // {
+    //     int index = temp->movieId;
+    //     printf("%d: %f\n", temp->movieId, temp->predictRate);
+    //     // printf("\tmovie: %d, N: %d, [%.2f, %.2f]\n", temp->movieId, temp->neighborCount, temp->similaritySum, temp->weightedSum);
+    //     temp = temp->next;
+    // }
+
+    epoch(&listOfWatched, &users[target]);
 
     if (users->countRate < 10)
     {

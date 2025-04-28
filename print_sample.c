@@ -10,9 +10,11 @@
 void printSample(struct dataSet * movies)
 {
     // print sample data
-    for (int i = 0 ; i < 10; i++)
+
+    int j = 1357;
+    for (int i = j ; i <  j + 10; i++)
     {
-        printf("id: %d\ttitle: %-20s genre arr: ",i, movies[i].title);
+        printf("id: %d\ttitle: %-50s genre arr: ",i, movies[i].title);
 
         for(int j = 0; j < GENRESIZE; j++)
             printf("%d ",movies[i].genreFeature[j]);

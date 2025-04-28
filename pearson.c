@@ -63,10 +63,10 @@ void insertUnwatched(struct unseen **head,
     float similarity)
 {
 
-    if (movieId == 0) {
-        printf("Adding or updating movie ID 0: similarity=%.2f, rating=%.2f, current count=%d\n", 
-               similarity, rating, (*head)->neighborCount);
-    }
+    // if (movieId == 0) {
+    //     printf("Adding or updating movie ID 0: similarity=%.2f, rating=%.2f, current count=%d\n", 
+    //            similarity, rating, (*head)->neighborCount);
+    // }
 
     // Check if list is empty
     if (*head == NULL) {
@@ -159,8 +159,6 @@ void pearsonCorrelation(struct ratingsTopN * listSameMovies ,
         curr = curr -> next;
     }   
     float pScore = dotProduct_deMean / (sqrt(preMagDemean_UA) * sqrt(preMagDemean_UB));
-    if (pScore == 1)
-        printf("raise found perfect match");
     insertPos(pears, UserB_ID, pScore, listSameMovies);
 }
 /**

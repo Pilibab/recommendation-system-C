@@ -25,11 +25,13 @@ struct unseen watched(struct topSimiliarUser * pears,
             if (curr == NULL) 
             {
                 insertUnwatched(watchedHead, allMoviesDb->movieId, allMoviesDb->rating ,pears[i].pearsonScore);
+
                 allMoviesDb = allMoviesDb->next;
             } else 
             {
                 if ((curr->movieId == allMoviesDb->movieId)) {
                     insertUnwatched(watchedHead, allMoviesDb->movieId, allMoviesDb->rating ,pears[i].pearsonScore);
+
                     allMoviesDb = allMoviesDb->next;
                     curr = curr->next;
                 } 
@@ -42,13 +44,13 @@ struct unseen watched(struct topSimiliarUser * pears,
             }
         }
     }
-    struct unseen *temp = *watchedHead;   
+    // struct unseen *temp = *watchedHead;   
 
-    while (temp != NULL)
-    {
-        printf("movie: %d, N=%d Ssum: %f, wSum: %f\n", temp->movieId, temp->neighborCount, temp->similaritySum, temp->weightedSum);
-        temp = temp->next;
-    }
+    // while (temp != NULL)
+    // {
+    //     printf("movie: %d, N=%d Ssum: %f, wSum: %f\n", temp->movieId, temp->neighborCount, temp->similaritySum, temp->weightedSum);
+    //     temp = temp->next;
+    // }
 }
 
 /**
@@ -58,17 +60,41 @@ struct unseen watched(struct topSimiliarUser * pears,
  * f[3]	User’s own average rating across all movies.
  * f[4]	Always 1.0 (bias trick).
  */
-// float probability (struct topSimiliarUser * pears, struct unseen ** unseenHead, struct  User toCompare[])
-// {
-//     struct unseen watchedMovies(pears, unseenHead, toCompare);
+float probability (float w[], float f[])
+{
 
 
     
-//     return 1 / (1 + exp(z(w,f)));
-// }
+    return 1 / (1 + exp(z(w,f)));
+}
 
-// float z(float w[], float f[])
-// {
+float z(float w[], float f[])
+{
+    return( w[0] +  w[1] * f[0] + 
+        w[2] * f[1] + w[3] * f[2] + 
+        w[4] * f[3] + w[5] * f[4]);
+}
 
-// }
+void epoch( struct unseen ** watchedHead, struct User * targetuser)
+{
+    float w[6] = {1,0,0,0,0,0};                               //initial weights
+    float averageByTargetU = targetuser->sumOfRate / targetuser->countRate;
 
+
+    struct unseen * temp = *watchedHead;
+
+    while (temp != NULL)
+    {
+        float f[5] = {
+            (temp->similaritySum / temp->neighborCount), 
+            temp->neighborCount, 
+            temp->predictRate,               //weighted average
+            averageByTargetU,
+            1.0
+            };
+
+        // printf("%f ", probability(w, f));
+
+        temp = temp -> next;
+    }
+}

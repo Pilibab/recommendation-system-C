@@ -54,9 +54,9 @@ int main()
     loadData(movies, items, itemFile, &validMovieCount, genreFreqCounter);
 
     // Now pass movies to addWeight()
-    printf("adding weights...\n");
+    printf("\nadding weights...\n");
     addWeight(movies, validMovieCount, weights, genreFreqCounter);
-    // printSample(movies);
+    printSample(movies);
 
     printf("creating movie matrix...\n");
     createUsermovieMatrix(dataFile, users, items, ratings, movies);

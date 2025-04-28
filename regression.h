@@ -7,6 +7,6 @@
         struct unseen ** watchedHead, 
         struct  User toCompare[]);
     
-        
-
+    void epoch( struct unseen ** unseenHead, struct User * targetuser);    
+    float z(float w[], float f[]);
 #endif

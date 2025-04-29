@@ -9,8 +9,6 @@
 
 #define sqr(x) (x * x)
 
-
-
 void getUnseenMovies(struct topSimiliarUser * pears, struct unseen ** unseenHead, struct  User toCompare[])
 {
     for (int i = 0; i < NEIGHBOR; i++)
@@ -170,7 +168,6 @@ void topNeighboor(struct User indexUser,
 {
     for (int i = 1; i < user + 1; i++)
     {
-        if (i == 1) continue;
         struct MovieRating * tempA = toCompare[i].ratings;                  //arr struct
         struct MovieRating * tempB = indexUser.ratings;                     //user to comp
 

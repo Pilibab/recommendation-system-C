@@ -25,13 +25,11 @@ struct unseen watched(struct topSimiliarUser * pears,
             if (curr == NULL) 
             {
                 insertUnwatched(watchedHead, allMoviesDb->movieId, allMoviesDb->rating ,pears[i].pearsonScore);
-
                 allMoviesDb = allMoviesDb->next;
             } else 
             {
                 if ((curr->movieId == allMoviesDb->movieId)) {
                     insertUnwatched(watchedHead, allMoviesDb->movieId, allMoviesDb->rating ,pears[i].pearsonScore);
-
                     allMoviesDb = allMoviesDb->next;
                     curr = curr->next;
                 } 
@@ -88,7 +86,7 @@ void updateWeights(float w[], float f[], float alpha, float y_hat, float y)
 
 void epoch( struct unseen ** watchedHead, struct User * targetuser, int epochCount, float w[])
 {
-      
+    printf("this is my logistic\n");
     const float alpha = 0.01;                                                               //learning rate
     float averageByTargetU = targetuser->sumOfRate / targetuser->countRate;
 
@@ -103,6 +101,7 @@ void epoch( struct unseen ** watchedHead, struct User * targetuser, int epochCou
         int test = 0;                                                                       // Use first 10 movies only for prediction                           
         while (tempWatched != NULL && test <= 10)
         {
+            // Initialize feature 
             float f[5] = {
                 1.0,                                        // Correspond to the bias term 
                 (tempWatched->similaritySum / tempWatched->neighborCount), 
@@ -111,11 +110,14 @@ void epoch( struct unseen ** watchedHead, struct User * targetuser, int epochCou
                 averageByTargetU,
                 };
 
+
             // Match tempMovie info (to get rating) to movie id of watched by Neighbor
             if (tempMovieInfo->movieId != tempWatched->movieId)
             {
                 while (tempMovieInfo->movieId < tempWatched->movieId)
+                {
                     tempMovieInfo = tempMovieInfo -> next;
+                }
             }
 
             // Calculate predictions
@@ -135,10 +137,10 @@ void epoch( struct unseen ** watchedHead, struct User * targetuser, int epochCou
             tempWatched = tempWatched -> next;
             test++;
         }
-        if (i % 10 == 0)
+        if (i % 100 == 0)
         {
             printf("epoch: %d", i);
-            printf("\tAverage log loss for epoch: %f\n", total_loss / test);
+            printf("\tAverage log loss for epoch: %.5lf\n", total_loss / test);
         }
     }
 }

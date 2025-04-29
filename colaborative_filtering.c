@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #define NEIGHBOR 10
 
 void createUsermovieMatrix(FILE *usersRateMovie, 
@@ -66,7 +67,7 @@ void createUsermovieMatrix(FILE *usersRateMovie,
 
     struct unseen *listOfWatched = NULL;   
 
-    printf("getting watched");
+    printf("getting watched\n");
     watched(topPearsed, &listOfWatched, users);
     predictRate(listOfWatched);
 
@@ -79,12 +80,21 @@ void createUsermovieMatrix(FILE *usersRateMovie,
     //     temp = temp->next;
     // }
 
-    epoch(&listOfWatched, &users[target]);
+    // Initial weights
+    float w[5] = {1,0,0,0,0};  
 
     if (users->countRate < 10)
     {
+        epoch(&listOfWatched, &users[target], 1000, w);
     }
 
+    printf("\nnew weights: \n");
+    float prevW[5]= {1,0,0,0,0};
+
+    for (int i = 0 ; i<5 ;i++)
+    {
+        printf("\t%f: delta_w[%d] = %.6f\n", w[i], i, w[i] - prevW[i]);
+    }
 }
 
 void addRating(struct User *user, int id, int rating) 

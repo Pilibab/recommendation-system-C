@@ -21,10 +21,10 @@ void predictMovie(float w[], struct unseen * notWatched, struct User * targetuse
         
         float prob = probability(w, f);
 
-        if (prob > .5)
-            printf("ud love this movie %d probability = %.2f\n", temp->movieId, prob);
-        else
-            printf("loss\n");
+        // if (prob > .5)
+        //     printf("ud love this movie %d probability = %.2f\n", temp->movieId, prob);
+        // else
+        //     printf("loss\n");
 
         temp = temp->next;
     }

@@ -24,6 +24,7 @@ struct dataSet
     char title[100];
     int genreFeature[GENRESIZE];
     float weightedFeature[GENRESIZE]; 
+    struct dataSet *pointsToFirst;
 }; 
 struct ratingsTopN
 {

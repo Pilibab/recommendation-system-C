@@ -21,7 +21,7 @@ void createUsermovieMatrix(FILE *usersRateMovie,
     struct topSimiliarUser *topPearsed  )
 {
 
-
+    // Initialize members to NULL and zero to avoid unexpected behavior 
     for (int i = 0; i < userCount + 1; i++)                                  
     {
         users[i].ratings = NULL;
@@ -35,19 +35,26 @@ void createUsermovieMatrix(FILE *usersRateMovie,
         }
     }
 
-    int tempMovieId, tempUserId, tempRate; 
+    int tempMovieId, tempUserId, tempRate;                                                  // Temp place holder for validation 
+
+    // Scan file add movie, rate, count and sum the rate 
     for (int i = 0; i < numRates; i++)
     {
         fscanf(usersRateMovie, "%d %d %d %*d", &tempUserId, &tempMovieId, &tempRate);
-        addRating(&users[tempUserId],  tempMovieId - 1, tempRate);
+        addRating(&users[tempUserId],  tempMovieId - 1, tempRate, movies);
     }
-
-
-
 }
 
-void addRating(struct User *user, int id, int rating) 
+void addRating(struct User *user, int id, int rating, struct dataSet movies[]) 
 {
+
+    if (movies[id].pointsToFirst == NULL)
+    {
+        struct dataSet *canonical = &movies[id];
+
+        // Note that: movies is 0 -> n - 0 to return int
+        id = canonical - movies ;                                                           // returns the distance / how far cannonical is interms of int           
+    }
     struct MovieRating* temp, *head = user->ratings;
     struct MovieRating* newN = (struct MovieRating *)malloc(sizeof(struct MovieRating));
 

@@ -99,7 +99,7 @@ void epoch( struct unseen ** watchedHead, struct User * targetuser, int epochCou
         float total_loss = 0.0;
     
         int test = 0;                                                                       // Use first 10 movies only for prediction                           
-        while (tempWatched != NULL && test <= 10)
+        while (tempWatched != NULL && test <= 20)
         {
             // Initialize feature 
             float f[5] = {

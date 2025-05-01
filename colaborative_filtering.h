@@ -15,7 +15,7 @@
         struct User *users,
         struct topSimiliarUser *topPearsed  );
 
-    void addRating(struct User *user, int id, int rating);
+        void addRating(struct User *user, int id, int rating, struct dataSet movies[]) ;
 
 
 #endif

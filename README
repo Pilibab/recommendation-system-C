@@ -1,5 +1,5 @@
 to compile this folder run:
-    gcc run.c get_data.c vect_ops.c vectorizer.c print_sample.c colaborative_filtering.c pearson.c clean_pearson.c -o output.exe
+    gcc run.c get_data.c vect_ops.c vectorizer.c print_sample.c colaborative_filtering.c pearson.c handle_inputs.c clean_pearson.c regression.c prediction.c -o output.exe
 
 to run:  
     ./output.exe 

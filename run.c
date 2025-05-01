@@ -7,8 +7,7 @@
 #include "clean_pearson.h"
 #include "regression.h"
 #include "prediction.h"
-
-
+#include "handle_inputs.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,6 +18,9 @@ int main()
     FILE *infoFile = fopen("ml-100k\\u.info", "r");
     FILE *itemFile = fopen("ml-100k\\u.item", "r");
     FILE *dataFile = fopen("ml-100k\\u.data", "r");
+
+    FILE *userCookie = fopen("user-data\\u.txt", "a+");
+
 
 
     int usersCount, items, ratings;
@@ -39,11 +41,21 @@ int main()
         printf("Error: <u.data> file could not be opened.\n");
         return 0;
     }
+    if (userCookie == NULL) {
+        perror("File creation failed");
+    }
+
+
 
     //scan info file for num of user items and ratings
     fscanf(infoFile, "%d users", &usersCount);
     fscanf(infoFile, "%d items", &items);
     fscanf(infoFile, "%d ratings", &ratings);
+
+
+    // get user data (u)
+    struct User targetUser = getTargetUserMovies(userCookie);
+
 
     //create arr struct to store movie data set
     struct dataSet movies[items]; 
@@ -70,11 +82,11 @@ int main()
 
 
     struct unseen *listofUnwatched = NULL;                                  //head of linked list (movies that the target user hasnt watched)    
-    // move all of this to run c
-    int target = 100;
+    
+
 
     // Create movie and User matrix 
-    topNeighboor(users[target], users, usersCount, topPearsed);
+    topNeighboor(targetUser, users, usersCount, topPearsed);
     getUnseenMovies(topPearsed, &listofUnwatched, users);
 
     // Update listOfUnwatched
@@ -93,7 +105,7 @@ int main()
 
     if (users->countRate < 10)
     {
-        epoch(&listOfWatched, &users[target], 400, w);
+        epoch(&listOfWatched, &targetUser, 400, w);
     }
 
     printf("\nnew weights: \n");
@@ -105,7 +117,7 @@ int main()
     }
 
     // Making prediction 
-    predictMovie(w, listofUnwatched, &users[target]);
+    predictMovie(w, listofUnwatched, &targetUser);
 
     // printSampleLinked(users);
     

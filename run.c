@@ -45,14 +45,10 @@ int main()
     }
 
 
-
     //scan info file for num of user items and ratings
     fscanf(infoFile, "%d users", &usersCount);
     fscanf(infoFile, "%d items", &items);
     fscanf(infoFile, "%d ratings", &ratings);
-
-
-
 
 
     //create arr struct to store movie data set

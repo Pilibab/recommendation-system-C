@@ -5,6 +5,7 @@
 #include "clean_pearson.h"
 #include "regression.h"
 #include "prediction.h"
+#include "handle_inputs.h"
 
 
 #include <stdio.h>
@@ -48,13 +49,9 @@ void createUsermovieMatrix(FILE *usersRateMovie,
 void addRating(struct User *user, int id, int rating, struct dataSet movies[]) 
 {
 
-    if (movies[id].pointsToFirst == NULL)
-    {
-        struct dataSet *canonical = &movies[id];
-
-        // Note that: movies is 0 -> n - 0 to return int
-        id = canonical - movies ;                                                           // returns the distance / how far cannonical is interms of int           
-    }
+    // use pointer arithmetic to shift to correct index
+    id = shiftId(id, movies);
+    
     struct MovieRating* temp, *head = user->ratings;
     struct MovieRating* newN = (struct MovieRating *)malloc(sizeof(struct MovieRating));
 

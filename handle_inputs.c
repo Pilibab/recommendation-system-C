@@ -12,13 +12,8 @@ struct User getTargetUserMovies(FILE * file, struct dataSet movies[] )
     int movieId, rating;
     while (fscanf(file, "%d %d", &movieId, &rating) == 2) {
 
-        if (movies[movieId].pointsToFirst == NULL)
-        {
-            struct dataSet *canonical = &movies[movieId];
-    
-            // Note that: movies is 0 -> n - 0 to return int
-            movieId = canonical - movies ;                                                           // returns the distance / how far cannonical is interms of int           
-        }
+        // use pointer arithmetic to shift to correct index
+        movieId = shiftId(movieId, movies);
 
         user.ratings = insertCorrectPos(user.ratings, movieId, rating);
         user.countRate++;
@@ -50,14 +45,9 @@ struct User getTargetUserMovies(FILE * file, struct dataSet movies[] )
 
             if (err) continue;                                                  // ask again 
 
-            if (movies[movieId].pointsToFirst == NULL)
-            {
-                struct dataSet *canonical = &movies[movieId];
-        
-                // Note that: movies is 0 -> n - 0 to return int
-                movieId = canonical - movies ;                                                           // returns the distance / how far cannonical is interms of int           
-            }
-            
+            // use pointer arithmetic to shift to correct index
+            movieId = shiftId(movieId, movies);
+
             user.ratings = insertCorrectPos(user.ratings, id, rate);
             user.countRate++;
             user.sumOfRate += rate;
@@ -114,4 +104,16 @@ struct MovieRating * insertCorrectPos(struct MovieRating * head, int movieId, in
     curr->next = newNode;
 
     return head;
+}
+
+int shiftId(int movieId, struct dataSet movies[])
+{
+    if (movies[movieId].pointsToFirst == NULL)
+    {
+        struct dataSet *canonical = &movies[movieId];
+
+        // Note that: movies is 0 -> n - 0 to return int
+        movieId = canonical - movies ;                                                           // returns the distance / how far cannonical is interms of int           
+    }
+    return movieId;
 }

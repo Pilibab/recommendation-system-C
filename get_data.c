@@ -117,5 +117,3 @@ void loadData(struct dataSet movies[], int items, FILE *itemFile, int *validMovi
 
 
 
-
-

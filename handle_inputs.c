@@ -56,6 +56,7 @@ struct User getTargetUserMovies(FILE * file, struct dataSet movies[] )
             fprintf(file, "%d %d\n", id, rate);
         }
     }
+
     return user;
 }
 

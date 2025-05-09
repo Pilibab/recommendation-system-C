@@ -75,7 +75,7 @@ int main()
 
 
     // Pass parameters to loadData()
-    // printf("loading data...\n");
+    printf("loading data...\n");
     loadData(movies, items, itemFile, &validMovieCount, genreFreqCounter, genreCount);
 
 
@@ -83,10 +83,10 @@ int main()
     checkDups(movies, items);
 
     // Now pass movies to addWeight()
-    // printf("\nadding weights...\n");
+    printf("\nadding weights...\n");
     addWeight(movies, validMovieCount, weights, genreFreqCounter);
 
-    // printf("creating movie matrix...\n");
+    printf("creating movie matrix...\n");
     createUsermovieMatrix(dataFile, usersCount, items, ratings, movies, users, topPearsed);
 
 
@@ -102,18 +102,26 @@ int main()
 
     predictRate(listofUnwatched);
 
-        // printf("getting watched\n");
+    printf("getting watched\n");
     watched(topPearsed, &listOfWatched, users);
     predictRate(listOfWatched);
 
     // Initial weights
     float w[5] = {1,0,0,0,0};  
 
+    printf("training weights\n");
+
     if (targetUser.countRate > 10)                                          // If no of rated met the minimum reqment
     {
         epoch(&listOfWatched, &targetUser, 400, w);
     }
 
+
+    printf("trained\n");
+
+    printf("\nPress Enter to start UP the main menu...");
+    getchar(); // consume leftover newline
+    getchar(); // wait for actual Enter key
 
     int choice;
 
@@ -133,7 +141,7 @@ int main()
 
         if (targetUser.countRate >= 10)
             printf("4. Logistic regression prediction\n");
-        printf("5. Modify user cookies\n");
+        printf("5. See and Modify user cookies\n");
         printf("0. Exit\n");
         printf("Enter choice: ");
 
@@ -159,6 +167,7 @@ int main()
                     runLogistic(w, listofUnwatched, &targetUser);
                 break;
             case 5:
+                modifyUserData(&targetUser, movies);
                 goto recompute;
             case 0:
                 printf("Goodbye.\n");
@@ -168,13 +177,6 @@ int main()
         }
     }
 
-    // Making prediction 
-    // predictMovie(w, listofUnwatched, &targetUser);
-
-    // printSampleLinked(users);
-    
-
-    // Included in paper close everything 
     exit:
 
     fclose(infoFile);
@@ -182,6 +184,7 @@ int main()
     fclose(dataFile);
     fclose(genreFile);
     fclose(userCookie);
+
     return 0;
 }
 

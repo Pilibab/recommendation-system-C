@@ -116,6 +116,8 @@ void runCollaborative(struct unseen *listofUnwatched, struct dataSet *movies)
     #else 
         system("clear"); 
     #endif 
+
+    int exits = 1;
  
     struct unseen *temp = listofUnwatched;
     struct unseen *copy = NULL;  // Initialize copy as NULL
@@ -152,43 +154,253 @@ void runCollaborative(struct unseen *listofUnwatched, struct dataSet *movies)
         temp = temp->next;
     }
  
-    int TRUTHY = 1; 
-    while (TRUTHY) 
+
+    // Print the sorted copy
+    temp = copy;
+    printf("\nMovies You Might Like\n");
+    while(temp != NULL) 
     { 
-        // Print the sorted copy
-        temp = copy;
-        printf("\nMovies You Might Like\n");
-        while(temp != NULL) 
-        { 
-            printf("\t%-55s You might give it:%.1f\n", movies[temp->movieId].title, temp->predictRate);
-            temp = temp->next; 
-        }
-        
-        printf("\n0. Go back to menu: ");
-        scanf("%d", &TRUTHY);
+        printf("\t%-55s You might give it:%.1f\n", movies[temp->movieId].title, temp->predictRate);
+        temp = temp->next; 
     }
     
+    printf("\n0. Go back to menu: ");
+    scanf("%d", &exits);
+
+    
     // Free the memory allocated for the copy list
-    while (copy != NULL) {
+    while (copy != NULL) 
+    {
         struct unseen *toFree = copy;
         copy = copy->next;
         free(toFree);
     }
+
+    if (exits == 0 ) return;
 }
 
 void runLogistic(float w[], struct unseen * notWatched, struct User * targetuser)
 {
     
     predictMovie(w, notWatched, targetuser);
-    int TRUTHY = 1; 
-    while (TRUTHY) 
-    { 
-        printf("\n0. Go back to menu: ");
-        scanf("%d", &TRUTHY);
-    }
+    int exits = 1; 
+
+    printf("\n0. Go back to menu: ");
+    scanf("%d", &exits);
+
+    if (exits == 0 ) return;
 
 }
 
+
+void modifyUserData(struct User * targetuser, struct dataSet *movies)
+{
+    #ifdef _WIN32   // IF WINDOWS  
+        system("cls"); 
+    #else 
+        system("clear"); 
+    #endif 
+    int counter = 0;
+    struct MovieRating * temp = targetuser->ratings;
+
+    printf("\n\nHere are the movies Youve watched\n\n");
+    while (temp != NULL)
+    {
+        printf("\t%6d) %-55s Movie Id:%-6d Rating: %d\n ", counter + 1,  movies[temp->movieId].title, temp->movieId, temp->rating);
+        temp = temp -> next; 
+        counter++;
+    }
+
+    char choice; 
+    printf("\n\nDo you want to modify data? y(yes)/ any key (no): ");
+    scanf(" %c", &choice);
+
+    if (tolower(choice) == 'y')
+    {
+
+        int delIn = -1;
+
+        while (delIn != 0)
+        {
+            #ifdef _WIN32   // IF WINDOWS  
+                system("cls"); 
+            #else 
+                system("clear"); 
+            #endif 
+
+            int index = 0;
+
+            struct MovieRating *display = targetuser->ratings;
+            while (display != NULL)
+            {
+                printf("\t%6d) %-55s Movie Id:%-6d Rating: %d\n", index + 1, movies[display->movieId].title, display->movieId, display->rating);
+                display = display->next;
+                index++;
+            }
+
+            int counter = 0; 
+            printf("1. Insert data at any position\n");
+            printf("2. Delete data at any position\n");
+            printf("3. change data rating / movie id\n");
+            printf("0. back to menu\n");
+
+            printf("Choice? ");
+            scanf("%d", &delIn);
+
+            while (delIn < 0 || delIn > 3)
+            {
+                printf("Error: Invalid index, please chose at the apt bound 1,2: ");
+                scanf("%d", &delIn);
+            }
+
+            if ( delIn == 1 )
+            {
+                int tempId, tempRate; 
+                printf("Enter Movie Id and Rate (movieid rate): ");
+
+                // validate if movie id and rate is at valid index
+                scanf("%d %d", &tempId, &tempRate);
+
+                struct MovieRating * newN = (struct MovieRating *)malloc(sizeof(struct MovieRating));
+    
+                newN->movieId = tempId;
+                newN->rating = tempRate;
+                newN->next = NULL;
+
+                if (tempId < targetuser->ratings->movieId)
+                {
+                    newN->next = temp;
+                    temp = newN;
+                } else
+                {
+                    struct MovieRating * traverse =  targetuser->ratings;
+
+                    while (traverse->next != NULL && tempId > traverse->next->movieId)
+                    {
+                        traverse = traverse -> next;
+                    }
+
+                    if (tempId ==  traverse->next->movieId)
+                        {
+                            printf("\n\nYou cannot overwrite past ratings, please delete them first and try again\n");
+                            free(newN);  // Prevent memory leak
+                            continue;
+                        }
+
+                    newN->next = traverse->next;
+                    traverse->next = newN;   
+                }
+
+                targetuser->countRate++;
+                targetuser->sumOfRate += tempRate;
+
+                int index = 0;
+
+                struct MovieRating *display = targetuser->ratings;
+                while (display != NULL)
+                {
+                    printf("\t%6d) %-55s Movie Id:%-6d Rating: %d\n", index + 1, movies[display->movieId].title, display->movieId, display->rating);
+                    display = display->next;
+                    index++;
+                }
+            } 
+            else if ( delIn == 2)
+            {
+                printf("Delete what position\n");
+
+                int indexDel;
+                // validate 
+                scanf("%d", &indexDel);
+
+                while (indexDel < 1 || indexDel > targetuser->countRate)
+                {
+                    printf("Error: Invalid position must be between 0 < x < %d", targetuser->countRate);
+                    scanf("%d", &indexDel);
+                }
+
+                struct MovieRating *current = targetuser->ratings;
+                struct MovieRating *prev = NULL;
+
+                for (int i = 1; i < indexDel; ++i)
+                {
+                    prev = current;
+                    current = current->next;
+                }
+
+                if (prev == NULL)
+                    targetuser->ratings = current->next;
+                else
+                    prev->next = current->next;
+
+                targetuser->sumOfRate -= current->rating;
+                free(current);
+                targetuser->countRate--;
+
+
+                int index = 0;
+
+                struct MovieRating *display = targetuser->ratings;
+                while (display != NULL)
+                {
+                    printf("\t%6d) %-55s Movie Id:%-6d Rating: %d\n", index + 1, movies[display->movieId].title, display->movieId, display->rating);
+                    display = display->next;
+                    index++;
+                }
+            }
+            else if (delIn == 3)
+            {
+                printf("Enter the movie position to modify (starting from 1): ");
+                int pos;
+                scanf("%d", &pos);
+
+                if (pos < 1 || pos > targetuser->countRate)
+                {
+                    printf("Invalid position.\n");
+                    continue;
+                }
+
+                struct MovieRating *current = targetuser->ratings;
+                for (int i = 1; i < pos; i++)
+                {
+                    current = current->next;
+                }
+
+                targetuser->sumOfRate -= current->rating;
+
+                printf("Enter new Movie Id and Rating: ");
+                scanf("%d %d", &current->movieId, &current->rating);
+
+                targetuser->sumOfRate += current->rating;
+
+            }
+        }
+
+
+    } 
+    else return;
+
+    printf("\n\nUpdated Movie Ratings:\n\n");
+
+    FILE * overWriteData = fopen("user-data\\u.txt", "w+");
+
+    if (overWriteData == NULL) {
+        perror("Error opening file for overwrite");
+        return;
+    }
+
+    struct MovieRating *writingHead = targetuser->ratings;
+    while (writingHead != NULL)
+    {
+        fprintf(overWriteData, "%d %d\n", writingHead->movieId, writingHead->rating);
+        writingHead = writingHead -> next;
+    }
+
+    fclose(overWriteData);
+    
+    printf("\nPress Enter to return to the main menu...");
+    getchar(); // consume leftover newline
+    getchar(); // wait for actual Enter key
+}
 
 
 

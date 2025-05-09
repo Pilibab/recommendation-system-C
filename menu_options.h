@@ -6,5 +6,6 @@
     void runCollaborative(struct unseen *listofUnwatched, struct dataSet * movies);
     void showCosineSimilar(struct dataSet * movies, int items);
     void runLogistic(float w[], struct unseen * notWatched, struct User * targetuser);
+    void modifyUserData(struct User * targetuser, struct dataSet *movies);
 
 #endif 

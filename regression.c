@@ -89,6 +89,8 @@ void epoch( struct unseen ** watchedHead, struct User * targetuser, int epochCou
     const float alpha = 0.01;                                                               //learning rate
     float averageByTargetU = targetuser->sumOfRate / targetuser->countRate;
 
+    printf("starting epoch\n");
+    
     for (int i = 0 ; i <= epochCount; i++)
     {
         struct unseen * tempWatched = *watchedHead;
@@ -98,7 +100,7 @@ void epoch( struct unseen ** watchedHead, struct User * targetuser, int epochCou
         float total_loss = 0.0;
     
         int test = 0;                                                                       // Use first 10 movies only for prediction                           
-        while (tempWatched != NULL && test <= 20)
+        while (tempWatched != NULL && test <= 10)
         {
             // Initialize feature 
             float f[5] = {
@@ -137,10 +139,10 @@ void epoch( struct unseen ** watchedHead, struct User * targetuser, int epochCou
             test++;
         }
         // Note: This is only for debugging to see if the sigmoid function is regressing (learning, more accurate to say -> fitting)
-        // if (i % 10 == 0)
-        // {
-        //     printf("\tepoch: %d", i);
-        //     printf("\tAverage log loss for epoch: %.5lf\n", total_loss / test);
-        // }
+        if (i % 10 == 0)
+        {
+            printf("\tepoch: %d", i);
+            printf("\tAverage log loss for epoch: %.5lf\n", total_loss / test);
+        }
     }
 }

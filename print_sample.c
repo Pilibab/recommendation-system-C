@@ -7,19 +7,41 @@
 #include <stdio.h>
 
 
-void printSample(struct dataSet * movies)
+void printSample(struct dataSet * movies, int items, int jumpTo, int genreCount, char **genre)
 {
-    // print sample data
-
-    int j = 1357;
-    for (int i = j ; i <  j + 10; i++)
+    for (int i = (jumpTo * 10) - 10, counter = 0; i <  items && counter < 10; i++, counter++)
     {
-        printf("id: %d\ttitle: %-50s genre arr: ",i, movies[i].title);
+        printf("\tid: %-4d title: %-50s genre: ",i, movies[i].title);
 
-        for(int j = 0; j < GENRESIZE; j++)
-            printf("%d ",movies[i].genreFeature[j]);
+        printAptGEnre(&movies[i], genreCount,genre);
+        printf("\n");
+    }
+}
 
-        printf("\t similarity to id 1: %.2f", cosineSimilarity(movies[1],movies[i]));
+void printAptGEnre(struct dataSet *movies, int genreCount, char **genre)
+{   
+    for (int i = 0; i < genreCount; i++)
+        if (movies->genreFeature[i] == 1)
+            printf("%s, ", genre[i]);
+}
+
+void printSampleLinked(struct User * user)
+{
+    for (int i = 0; i < 10 ; i ++)
+    {
+        double avg = 0;
+        if ( user[i].countRate != 0 )
+            avg = user[i].sumOfRate / user[i].countRate;
+
+        printf("user: %d no of rating: %d total rating: %.2lf average: %.2lf\n", 
+            i, user[i].countRate, user[i].sumOfRate, avg);
+     
+        struct MovieRating * curr = user[i].ratings;
+        while (curr != NULL)
+        {
+            printf("%d ", curr->movieId);
+            curr = curr->next; 
+        }
         printf("\n");
     }
 }

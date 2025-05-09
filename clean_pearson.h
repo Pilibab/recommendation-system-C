@@ -5,5 +5,6 @@
 #define NEIGHBOR 10
 
     struct unseen* setThreshold(struct unseen *head);
-    struct unseen* setThreshold(struct unseen *head);
+    void freeLinkedList(struct ratingsTopN * head );
+
 #endif    

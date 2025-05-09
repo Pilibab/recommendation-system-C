@@ -18,7 +18,7 @@
         double totalMovies, 
         float weights[GENRESIZE]);
 
-    void freqGenreCounter(struct dataSet movies, double df[GENRESIZE]);
+    void freqGenreCounter(struct dataSet movies, double df[GENRESIZE], int genreCount);
     
     void tf_idf(double df[GENRESIZE], 
         double totalMovies, 

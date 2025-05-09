@@ -60,25 +60,10 @@ void weightedVector(struct dataSet * movies,double df[GENRESIZE], double totalMo
 /**
  * count the freq of each genre at constant time O(k)
  */
-void freqGenreCounter(struct dataSet movies, double df[GENRESIZE])
+void freqGenreCounter(struct dataSet movies, double df[GENRESIZE], int genreCount)
 {
-    if (movies.genreFeature[0] == 1) df[0]++;
-    if (movies.genreFeature[1] == 1) df[1]++;
-    if (movies.genreFeature[2] == 1) df[2]++;
-    if (movies.genreFeature[3] == 1) df[3]++;
-    if (movies.genreFeature[4] == 1) df[4]++;
-    if (movies.genreFeature[5] == 1) df[5]++;
-    if (movies.genreFeature[6] == 1) df[6]++;
-    if (movies.genreFeature[7] == 1) df[7]++;
-    if (movies.genreFeature[8] == 1) df[8]++;
-    if (movies.genreFeature[9] == 1) df[9]++;
-    if (movies.genreFeature[10] == 1) df[10]++;
-    if (movies.genreFeature[11] == 1) df[11]++;
-    if (movies.genreFeature[12] == 1) df[12]++;
-    if (movies.genreFeature[13] == 1) df[13]++;
-    if (movies.genreFeature[14] == 1) df[14]++;
-    if (movies.genreFeature[15] == 1) df[15]++;
-    if (movies.genreFeature[16] == 1) df[16]++;
-    if (movies.genreFeature[17] == 1) df[17]++;
-    if (movies.genreFeature[18] == 1) df[18]++; 
+    for (int i = 0 ; i < genreCount; i++)
+    {
+        if (movies.genreFeature[i] == 1) df[i]++;
+    }
 }

@@ -4,6 +4,7 @@
 
 #include "pearson.h"
 #include "structures.h"
+#include "clean_pearson.h"
 #define NEIGHBOR 10
 #define MAXTHRESHOLD 4
 
@@ -60,12 +61,6 @@ void insertUnwatched(struct unseen **head,
     float rating, 
     float similarity)
 {
-
-    // if (movieId == 0) {
-    //     printf("Adding or updating movie ID 0: similarity=%.2f, rating=%.2f, current count=%d\n", 
-    //            similarity, rating, (*head)->neighborCount);
-    // }
-
     // Check if list is empty
     if (*head == NULL) {
         struct unseen *newNode = (struct unseen *)malloc(sizeof(struct unseen));
@@ -250,13 +245,3 @@ struct ratingsTopN * getRateOfMovie(struct MovieRating *a, struct MovieRating *b
     return newNode;
 }
 
-void freeLinkedList(struct ratingsTopN * head )
-{
-    struct ratingsTopN *temp = NULL;
-    while (head != NULL)
-    {
-        temp = head;
-        head = head->next;
-        free(temp);
-    }
-}

@@ -78,24 +78,3 @@ void addRating(struct User *user, int id, int rating, struct dataSet movies[])
     user->sumOfRate += rating;
     user->countRate++;
 }
-
-void printSampleLinked(struct User * user)
-{
-    for (int i = 0; i < 10 ; i ++)
-    {
-        double avg = 0;
-        if ( user[i].countRate != 0 )
-            avg = user[i].sumOfRate / user[i].countRate;
-
-        printf("user: %d no of rating: %d total rating: %.2lf average: %.2lf\n", 
-            i, user[i].countRate, user[i].sumOfRate, avg);
-     
-        struct MovieRating * curr = user[i].ratings;
-        while (curr != NULL)
-        {
-            printf("%d ", curr->movieId);
-            curr = curr->next; 
-        }
-        printf("\n");
-    }
-}

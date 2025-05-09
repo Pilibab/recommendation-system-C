@@ -86,7 +86,6 @@ void updateWeights(float w[], float f[], float alpha, float y_hat, float y)
 
 void epoch( struct unseen ** watchedHead, struct User * targetuser, int epochCount, float w[])
 {
-    printf("Training weights\n");
     const float alpha = 0.01;                                                               //learning rate
     float averageByTargetU = targetuser->sumOfRate / targetuser->countRate;
 
@@ -137,10 +136,11 @@ void epoch( struct unseen ** watchedHead, struct User * targetuser, int epochCou
             tempWatched = tempWatched -> next;
             test++;
         }
-        if (i % 10 == 0)
-        {
-            printf("\tepoch: %d", i);
-            printf("\tAverage log loss for epoch: %.5lf\n", total_loss / test);
-        }
+        // Note: This is only for debugging to see if the sigmoid function is regressing (learning, more accurate to say -> fitting)
+        // if (i % 10 == 0)
+        // {
+        //     printf("\tepoch: %d", i);
+        //     printf("\tAverage log loss for epoch: %.5lf\n", total_loss / test);
+        // }
     }
 }

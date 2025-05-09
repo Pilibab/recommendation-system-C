@@ -34,7 +34,13 @@ struct unseen* setThreshold(struct unseen *head)
     return head;  
 }
 
-// struct unseen* setThreshold(struct unseen *head)
-// {
-//     return head;
-// }
+void freeLinkedList(struct ratingsTopN * head )
+{
+    struct ratingsTopN *temp = NULL;
+    while (head != NULL)
+    {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}

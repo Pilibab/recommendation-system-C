@@ -5,5 +5,6 @@
     void displayAllMovies(struct dataSet * movies, int items, int genreCount, char **genres);
     void runCollaborative(struct unseen *listofUnwatched, struct dataSet * movies);
     void showCosineSimilar(struct dataSet * movies, int items);
+    void runLogistic(float w[], struct unseen * notWatched, struct User * targetuser);
 
 #endif 

@@ -2,6 +2,7 @@
 #include "structures.h"
 #include "utilities.h"
 #include "vect_ops.h"
+#include "prediction.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -171,7 +172,18 @@ void runCollaborative(struct unseen *listofUnwatched, struct dataSet *movies)
     }
 }
 
+void runLogistic(float w[], struct unseen * notWatched, struct User * targetuser)
+{
+    
+    predictMovie(w, notWatched, targetuser);
+    int TRUTHY = 1; 
+    while (TRUTHY) 
+    { 
+        printf("\n0. Go back to menu: ");
+        scanf("%d", &TRUTHY);
+    }
 
+}
 
 
 

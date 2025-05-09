@@ -156,7 +156,7 @@ int main()
                 if (targetUser.countRate < 10)
                     printf("Not enough ratings to run logistic regression. Rate at least 10 movies.\n");
                 else
-                    // runLogistic(targetUser, users, topPearsed);
+                    runLogistic(w, listofUnwatched, &targetUser);
                 break;
             case 5:
                 goto recompute;

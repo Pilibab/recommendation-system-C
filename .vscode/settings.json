@@ -11,6 +11,7 @@
         "structures.h": "c",
         "pearson.h": "c",
         "prediction.h": "c",
-        "menu_options.h": "c"
+        "menu_options.h": "c",
+        "clean_pearson.h": "c"
     }
 }

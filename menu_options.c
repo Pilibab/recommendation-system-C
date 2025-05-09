@@ -87,7 +87,7 @@ void showCosineSimilar(struct dataSet * movies, int items)
     }
 
         // Display similar movies
-    printf("\nMovies similar to \"%s\":\n", movies[movieId].title);
+    printf("\nMovies similar to \"%s\":\n\n", movies[movieId].title);
     temp = head;
     while (temp)
     {
@@ -103,3 +103,77 @@ void showCosineSimilar(struct dataSet * movies, int items)
         showCosineSimilar(movies, items);
     else return;
 }
+
+void runCollaborative(struct unseen *listofUnwatched, struct dataSet *movies) 
+{ 
+    #ifdef _WIN32   // IF WINDOWS  
+        system("cls"); 
+    #else 
+        system("clear"); 
+    #endif 
+ 
+    struct unseen *temp = listofUnwatched;
+    struct unseen *copy = NULL;  // Initialize copy as NULL
+    
+    // Create a copy of the list
+    while (temp != NULL) {
+        if (temp->predictRate > 3) {
+            // Create new node
+            struct unseen *newNode = (struct unseen *)malloc(sizeof(struct unseen));
+            if (newNode == NULL) {
+                printf("Memory allocation failed\n");
+                return;
+            }
+            
+            // Copy data
+            newNode->movieId = temp->movieId;
+            newNode->predictRate = temp->predictRate;
+            
+            // Insert into copy list in descending order
+            if (copy == NULL || copy->predictRate < temp->predictRate) {
+                // Insert at beginning
+                newNode->next = copy;
+                copy = newNode;
+            } else {
+                // Find position to insert
+                struct unseen *current = copy;
+                while (current->next != NULL && current->next->predictRate >= temp->predictRate) {
+                    current = current->next;
+                }
+                newNode->next = current->next;
+                current->next = newNode;
+            }
+        }
+        temp = temp->next;
+    }
+ 
+    int TRUTHY = 1; 
+    while (TRUTHY) 
+    { 
+        // Print the sorted copy
+        temp = copy;
+        printf("\nMovies You Might Like\n");
+        while(temp != NULL) 
+        { 
+            printf("\t%-55s You might give it:%.1f\n", movies[temp->movieId].title, temp->predictRate);
+            temp = temp->next; 
+        }
+        
+        printf("\n0. Go back to menu: ");
+        scanf("%d", &TRUTHY);
+    }
+    
+    // Free the memory allocated for the copy list
+    while (copy != NULL) {
+        struct unseen *toFree = copy;
+        copy = copy->next;
+        free(toFree);
+    }
+}
+
+
+
+
+
+
+

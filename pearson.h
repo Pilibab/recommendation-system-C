@@ -3,7 +3,7 @@
 
 #include "structures.h"
 
-#define NEIGHBOR 10
+
 
     void getUnseenMovies(struct topSimiliarUser *pears, struct unseen ** unseenHead, struct  User toCompare[]);
 
@@ -28,5 +28,4 @@
         float rating, 
         float similarity);
 
-    void predictRate(struct unseen * unseenHead);
 #endif

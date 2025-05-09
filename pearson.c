@@ -5,8 +5,8 @@
 #include "pearson.h"
 #include "structures.h"
 #include "clean_pearson.h"
-#define NEIGHBOR 10
-#define MAXTHRESHOLD 4
+#include "prediction.h"
+
 
 #define sqr(x) (x * x)
 
@@ -41,18 +41,6 @@ void getUnseenMovies(struct topSimiliarUser * pears, struct unseen ** unseenHead
                     curr = curr->next;  
             }
         }
-    }
-}
-
-void predictRate(struct unseen * unseenHead)
-{
-    struct unseen * temp = unseenHead;
-
-    while (temp != NULL)
-    {
-        float predictedRate = temp->weightedSum / temp->similaritySum;
-        temp->predictRate = predictedRate;
-        temp = temp->next;
     }
 }
 

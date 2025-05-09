@@ -45,11 +45,16 @@ int main()
     fscanf(infoFile, "%d items", &items);
     fscanf(infoFile, "%d ratings", &ratings);
 
-    
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+
     // Create arr struct to store movie data set
     struct dataSet movies[items]; 
-    struct unseen *listofUnwatched = NULL;                                  //head of linked list (movies that the target user hasnt watched)    
-    struct unseen *listOfWatched = NULL;   
+    struct unseen *listofUnwatched = NULL;                                  // head of linked list (movies that the target user hasnt watched) for prediction
+    struct unseen *listOfWatched = NULL;                                    // data used for predicting in KNN
     struct User users[usersCount];
     struct topSimiliarUser topPearsed[usersCount];    
 
@@ -84,6 +89,32 @@ int main()
     // printf("creating movie matrix...\n");
     createUsermovieMatrix(dataFile, usersCount, items, ratings, movies, users, topPearsed);
 
+
+    recompute:                                                                      // goto point if user inserted / modified a movie
+
+    // skip this part first 
+    // Create movie and User matrix 
+    topNeighboor(targetUser, users, usersCount, topPearsed);
+    getUnseenMovies(topPearsed, &listofUnwatched, users);
+
+    // Update listOfUnwatched
+    listofUnwatched = setThreshold(listofUnwatched);
+
+    predictRate(listofUnwatched);
+
+        // printf("getting watched\n");
+    watched(topPearsed, &listOfWatched, users);
+    predictRate(listOfWatched);
+
+    // Initial weights
+    float w[5] = {1,0,0,0,0};  
+
+    if (targetUser.countRate > 10)                                          // If no of rated met the minimum reqment
+    {
+        epoch(&listOfWatched, &targetUser, 400, w);
+    }
+
+
     int choice;
 
     while (1) {
@@ -102,7 +133,7 @@ int main()
 
         if (targetUser.countRate >= 10)
             printf("4. Logistic regression prediction\n");
-
+        printf("5. Modify user cookies\n");
         printf("0. Exit\n");
         printf("Enter choice: ");
 
@@ -116,7 +147,10 @@ int main()
                 showCosineSimilar(movies, items);
                 break;
             case 3:
-                // runCollaborative(targetUser, users, topPearsed);
+                if (targetUser.countRate < MAXTHRESHOLD)
+                    printf("Not enough ratings to run Collaborative filtering. Rate at least 4 movies.\n");
+                else 
+                    runCollaborative(listofUnwatched, movies);
                 break;
             case 4:
                 if (targetUser.countRate < 10)
@@ -124,39 +158,15 @@ int main()
                 else
                     // runLogistic(targetUser, users, topPearsed);
                 break;
+            case 5:
+                goto recompute;
             case 0:
                 printf("Goodbye.\n");
-                exit(0);
+                goto exit;
             default:
                 printf("Invalid option.\n");
         }
     }
-
-
-
-    // skip this part first 
-    // Create movie and User matrix 
-    topNeighboor(targetUser, users, usersCount, topPearsed);
-    getUnseenMovies(topPearsed, &listofUnwatched, users);
-
-    // Update listOfUnwatched
-    listofUnwatched = setThreshold(listofUnwatched);
-
-    predictRate(listofUnwatched);
-
-
-    // printf("getting watched\n");
-    watched(topPearsed, &listOfWatched, users);
-    predictRate(listOfWatched);
-
-    // Initial weights
-    float w[5] = {1,0,0,0,0};  
-
-    if (targetUser.countRate > 20)                                          // If no of rated met the minimum reqment
-    {
-        epoch(&listOfWatched, &targetUser, 400, w);
-    }
-
 
     // Making prediction 
     // predictMovie(w, listofUnwatched, &targetUser);
@@ -165,9 +175,13 @@ int main()
     
 
     // Included in paper close everything 
+    exit:
+
     fclose(infoFile);
     fclose(itemFile);
     fclose(dataFile);
+    fclose(genreFile);
+    fclose(userCookie);
     return 0;
 }
 

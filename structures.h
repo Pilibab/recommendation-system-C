@@ -2,6 +2,9 @@
 #define STRUCTURES_H
 
 #define GENRESIZE 19
+#define NEIGHBOR 10
+#define MAXTHRESHOLD 4
+
 
     struct MovieSimilaritCosine
     {

@@ -29,3 +29,18 @@ void predictMovie(float w[], struct unseen * notWatched, struct User * targetuse
         temp = temp->next;
     }
 }
+
+/**
+ * Predict likelihood by KNN
+ */
+void predictRate(struct unseen * unseenHead)
+{
+    struct unseen * temp = unseenHead;
+
+    while (temp != NULL)
+    {
+        float predictedRate = temp->weightedSum / temp->similaritySum;
+        temp->predictRate = predictedRate;
+        temp = temp->next;
+    }
+}

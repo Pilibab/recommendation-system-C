@@ -14,8 +14,7 @@ void displayAllMovies(struct dataSet *movies, int items, int genreCount, char **
     int jumpTo = 1;
     int pages = items / 20 + ((items % 20 != 0)? 1: 0);
 
-    int TRUTHY = 1;
-    while (TRUTHY)
+    while (1)
     {
         #ifdef _WIN32   // IF WINDOWS 
             system("cls");
@@ -34,13 +33,18 @@ void displayAllMovies(struct dataSet *movies, int items, int genreCount, char **
         printf("Enter page number (1 to %d), or 0 to go back to menu: ", pages);
         scanf(" %d", &jumpTo);
 
+        // Flag that closes the loop 
+        if (jumpTo == 0) 
+        {
+            break;
+        }
+
         while(jumpTo < 1 || jumpTo > pages)
         {
             printf("Error: Out of Bound insert a valid range 1 <= x <= pages ");
             scanf(" %d", &jumpTo);
         }
-        // Flag that closes the loop 
-        if (jumpTo == 0) TRUTHY = 0;
+
     }
 }
 

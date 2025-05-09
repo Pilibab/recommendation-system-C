@@ -104,6 +104,7 @@ int main()
 
     printf("getting watched\n");
     watched(topPearsed, &listOfWatched, users);
+    
     predictRate(listOfWatched);
 
     // Initial weights

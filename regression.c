@@ -102,6 +102,10 @@ void epoch( struct unseen ** watchedHead, struct User * targetuser, int epochCou
         int test = 0;                                                                       // Use first 10 movies only for prediction                           
         while (tempWatched != NULL && test <= 10)
         {
+            if (i == 0)
+            {
+                printf("movie id: %d\n", tempWatched->movieId);
+            }
             // Initialize feature 
             float f[5] = {
                 1.0,                                        // Correspond to the bias term 
@@ -145,4 +149,51 @@ void epoch( struct unseen ** watchedHead, struct User * targetuser, int epochCou
             printf("\tAverage log loss for epoch: %.5lf\n", total_loss / test);
         }
     }
+
+    printf("\nTesting model on unseen data (not used in training)...\n\n");
+    struct unseen *tempTest = *watchedHead;
+    struct MovieRating *temptestMovieInfo = targetuser->ratings;
+    int testIndex = 0;
+    int correct = 0;
+    int totalTested = 0;
+    float totalTestLoss = 0.0;
+
+    // skip the first 10 training examples
+    while (tempTest != NULL && testIndex < 11) {
+        tempTest = tempTest->next;
+        testIndex++;
+    }
+
+    while (tempTest != NULL) {
+        float f[5] = {
+            1.0,
+            (tempTest->similaritySum / tempTest->neighborCount), 
+            tempTest->neighborCount, 
+            tempTest->predictRate, 
+            averageByTargetU,
+        };
+
+        // align to movieId (same logic as before)
+        while (temptestMovieInfo != NULL && temptestMovieInfo->movieId < tempTest->movieId)
+            temptestMovieInfo = temptestMovieInfo->next;
+
+        if (temptestMovieInfo == NULL) break;
+
+        float y_hat = probability(w, f);
+        float y = (temptestMovieInfo->rating >= 4) ? 1.0 : 0.0;
+        float lossVal = loss(temptestMovieInfo, y_hat, y);
+        totalTestLoss += lossVal;
+
+        // Count as correct if predicted label matches
+        int predicted = (y_hat >= 0.5) ? 1 : 0;
+        if (predicted == y) correct++;
+
+            printf("\ttest log loss: %.5f\tMovie id: %6d\n",lossVal, tempTest->movieId);
+        totalTested++;
+        temptestMovieInfo = temptestMovieInfo->next;
+        tempTest = tempTest->next;
+    }
+
+    printf("\nTest accuracy: %.2f%% (%d/%d correct)\n", (100.0 * correct) / totalTested, correct, totalTested);
+    printf("Average test log loss: %.5f\n", totalTestLoss / totalTested);
 }

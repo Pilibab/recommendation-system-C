@@ -239,7 +239,7 @@ void modifyUserData(struct User * targetuser, struct dataSet *movies)
             }
 
             int counter = 0; 
-            printf("1. Insert data at any position\n");
+            printf("1. Insert data\n");
             printf("2. Delete data at any position\n");
             printf("3. change data rating / movie id\n");
             printf("0. back to menu\n");
@@ -253,6 +253,8 @@ void modifyUserData(struct User * targetuser, struct dataSet *movies)
                 scanf("%d", &delIn);
             }
 
+
+            // -----    insert data at head -----
             if ( delIn == 1 )
             {
                 int tempId, tempRate; 
@@ -265,45 +267,15 @@ void modifyUserData(struct User * targetuser, struct dataSet *movies)
     
                 newN->movieId = tempId;
                 newN->rating = tempRate;
-                newN->next = NULL;
+                newN->next = targetuser->ratings;
 
-                if (tempId < targetuser->ratings->movieId)
-                {
-                    newN->next = temp;
-                    temp = newN;
-                } else
-                {
-                    struct MovieRating * traverse =  targetuser->ratings;
-
-                    while (traverse->next != NULL && tempId > traverse->next->movieId)
-                    {
-                        traverse = traverse -> next;
-                    }
-
-                    if (tempId ==  traverse->next->movieId)
-                        {
-                            printf("\n\nYou cannot overwrite past ratings, please delete them first and try again\n");
-                            free(newN);  // Prevent memory leak
-                            continue;
-                        }
-
-                    newN->next = traverse->next;
-                    traverse->next = newN;   
-                }
+                targetuser->ratings = newN;
 
                 targetuser->countRate++;
                 targetuser->sumOfRate += tempRate;
-
-                int index = 0;
-
-                struct MovieRating *display = targetuser->ratings;
-                while (display != NULL)
-                {
-                    printf("\t%6d) %-55s Movie Id:%-6d Rating: %d\n", index + 1, movies[display->movieId].title, display->movieId, display->rating);
-                    display = display->next;
-                    index++;
-                }
             } 
+
+            //----- delete data -----
             else if ( delIn == 2)
             {
                 printf("Delete what position\n");

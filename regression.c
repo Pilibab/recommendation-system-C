@@ -30,6 +30,7 @@ struct unseen watched(struct topSimiliarUser * pears,
             {
                 if ((curr->movieId == allMoviesDb->movieId)) {
                     insertUnwatched(watchedHead, allMoviesDb->movieId, allMoviesDb->rating ,pears[i].pearsonScore);
+                    printf("\t|%d %d|\n", curr->movieId,  allMoviesDb->movieId);
                     allMoviesDb = allMoviesDb->next;
                     curr = curr->next;
                 } 
@@ -84,28 +85,42 @@ void updateWeights(float w[], float f[], float alpha, float y_hat, float y)
     w[4] = w[4] - alpha * error * f[4];
 }
 
-void epoch( struct unseen ** watchedHead, struct User * targetuser, int epochCount, float w[])
+void epoch(struct unseen ** watchedHead, struct User * targetuser, int epochCount, float w[])
 {
-    const float alpha = 0.01;                                                               //learning rate
+    const float alpha = 0.01;                                                         //learning rate
     float averageByTargetU = targetuser->sumOfRate / targetuser->countRate;
 
     printf("starting epoch\n");
     
-    for (int i = 0 ; i <= epochCount; i++)
+    for (int i = 0; i <= epochCount; i++)
     {
-        struct unseen * tempWatched = *watchedHead;
         struct MovieRating * tempMovieInfo = targetuser->ratings;
-    
+        
         // For tracking total loss
         float total_loss = 0.0;
-    
-        int test = 0;                                                                       // Use first 10 movies only for prediction                           
-        while (tempWatched != NULL && test <= 10)
+        int count = 0;
+        
+        // Use first 10 movies for training
+        while (tempMovieInfo != NULL && count < 10)
         {
             if (i == 0)
             {
-                printf("movie id: %d\n", tempWatched->movieId);
+                printf("%d) movie id: %d\n",count, tempMovieInfo->movieId);
             }
+            
+            // Find corresponding movie in watchedHead
+            struct unseen *tempWatched = *watchedHead;
+            while (tempWatched != NULL && tempWatched->movieId != tempMovieInfo->movieId)
+            {
+                tempWatched = tempWatched->next;
+            }
+            
+            // Skip if movie not found in watchedHead
+            if (tempWatched == NULL) {
+                tempMovieInfo = tempMovieInfo->next;
+                continue;
+            }
+            
             // Initialize feature 
             float f[5] = {
                 1.0,                                        // Correspond to the bias term 
@@ -113,23 +128,13 @@ void epoch( struct unseen ** watchedHead, struct User * targetuser, int epochCou
                 tempWatched->neighborCount, 
                 tempWatched->predictRate,                   //weighted average
                 averageByTargetU,
-                };
-
-
-            // Match tempMovie info (to get rating) to movie id of watched by Neighbor
-            if (tempMovieInfo->movieId != tempWatched->movieId)
-            {
-                while (tempMovieInfo->movieId < tempWatched->movieId)
-                {
-                    tempMovieInfo = tempMovieInfo -> next;
-                }
-            }
+            };
 
             // Calculate predictions
             float y_hat = probability(w, f);
 
             // assert if user liked movie (determine true label)
-            float y =  (tempMovieInfo->rating >= 4)? 1.0: 0.0;                                      // Consider rate higher than 4 liked
+            float y = (tempMovieInfo->rating >= 4) ? 1.0 : 0.0;  // Consider rate higher than 4 liked
 
             // cal and track loss
             float currentLoss = loss(tempMovieInfo, y_hat, y);
@@ -138,33 +143,50 @@ void epoch( struct unseen ** watchedHead, struct User * targetuser, int epochCou
             // Update the weights thru gradient step
             updateWeights(w, f, alpha, y_hat, y);
 
-            tempMovieInfo = tempMovieInfo -> next;
-            tempWatched = tempWatched -> next;
-            test++;
+            tempMovieInfo = tempMovieInfo->next;
+            count++;
         }
-        // Note: This is only for debugging to see if the sigmoid function is regressing (learning, more accurate to say -> fitting)
+        
+        // Note: This is only for debugging to see if the sigmoid function is regressing
         if (i % 10 == 0)
         {
             printf("\tepoch: %d", i);
-            printf("\tAverage log loss for epoch: %.5lf\n", total_loss / test);
+            printf("\tAverage log loss for epoch: %.5lf\n", total_loss / (count > 0 ? count : 1));
         }
     }
 
     printf("\nTesting model on unseen data (not used in training)...\n\n");
-    struct unseen *tempTest = *watchedHead;
-    struct MovieRating *temptestMovieInfo = targetuser->ratings;
+    
+    // Start testing from the 11th movie in user ratings
+    struct MovieRating *tempTestMovieInfo = targetuser->ratings;
     int testIndex = 0;
+    
+    // Skip the first 10 training examples
+    while (tempTestMovieInfo != NULL && testIndex <= 11) {
+        tempTestMovieInfo = tempTestMovieInfo->next;
+        testIndex++;
+    }
+    
     int correct = 0;
     int totalTested = 0;
     float totalTestLoss = 0.0;
 
-    // skip the first 10 training examples
-    while (tempTest != NULL && testIndex < 11) {
-        tempTest = tempTest->next;
-        testIndex++;
-    }
-
-    while (tempTest != NULL) {
+    // Test on remaining movies
+    while (tempTestMovieInfo != NULL) 
+    {
+        // Find corresponding movie in watchedHead
+        struct unseen *tempTest = *watchedHead;
+        while (tempTest != NULL && tempTest->movieId != tempTestMovieInfo->movieId)
+        {
+            tempTest = tempTest->next;
+        }
+        
+        // Skip if movie not found in watchedHead
+        if (tempTest == NULL) {
+            tempTestMovieInfo = tempTestMovieInfo->next;
+            continue;
+        }
+        
         float f[5] = {
             1.0,
             (tempTest->similaritySum / tempTest->neighborCount), 
@@ -173,27 +195,27 @@ void epoch( struct unseen ** watchedHead, struct User * targetuser, int epochCou
             averageByTargetU,
         };
 
-        // align to movieId (same logic as before)
-        while (temptestMovieInfo != NULL && temptestMovieInfo->movieId < tempTest->movieId)
-            temptestMovieInfo = temptestMovieInfo->next;
-
-        if (temptestMovieInfo == NULL) break;
-
         float y_hat = probability(w, f);
-        float y = (temptestMovieInfo->rating >= 4) ? 1.0 : 0.0;
-        float lossVal = loss(temptestMovieInfo, y_hat, y);
+        float y = (tempTestMovieInfo->rating >= 4) ? 1.0 : 0.0;
+        float lossVal = loss(tempTestMovieInfo, y_hat, y);
         totalTestLoss += lossVal;
 
         // Count as correct if predicted label matches
         int predicted = (y_hat >= 0.5) ? 1 : 0;
         if (predicted == y) correct++;
 
-            printf("\ttest log loss: %.5f\tMovie id: %6d\n",lossVal, tempTest->movieId);
+        printf("\ttest log loss: %.5f\tMovie id: %6d", lossVal, tempTest->movieId);
+        if (predicted != y) printf("\t<-- prediction did not match\n");
+        else printf("\n");
+
         totalTested++;
-        temptestMovieInfo = temptestMovieInfo->next;
-        tempTest = tempTest->next;
+        tempTestMovieInfo = tempTestMovieInfo->next;
     }
 
-    printf("\nTest accuracy: %.2f%% (%d/%d correct)\n", (100.0 * correct) / totalTested, correct, totalTested);
-    printf("Average test log loss: %.5f\n", totalTestLoss / totalTested);
+    if (totalTested > 0) {
+        printf("\nTest accuracy: %.2f%% (%d/%d correct)\n", (100.0 * correct) / totalTested, correct, totalTested);
+        printf("Average test log loss: %.5f\n", totalTestLoss / totalTested);
+    } else {
+        printf("\nNo test data available.\n");
+    }
 }

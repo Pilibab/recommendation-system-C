@@ -8,6 +8,7 @@
 #include "regression.h"
 #include "prediction.h"
 #include "handle_inputs.h"
+#include "menu_options.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -83,13 +84,15 @@ int main()
     // printf("creating movie matrix...\n");
     createUsermovieMatrix(dataFile, usersCount, items, ratings, movies, users, topPearsed);
 
-    
-    // printf("printing sample\n");
-
-
     int choice;
 
     while (1) {
+        #ifdef _WIN32
+            system("cls");
+        #else
+            system("clear");
+        #endif
+
         printf("\nChoose an option:\n");
         printf("1. View all movies\n");
         printf("2. Similar movies (cosine)\n");
@@ -107,11 +110,10 @@ int main()
 
         switch (choice) {
             case 1:
-                printf("printing Movies From data base\n");
                 displayAllMovies(movies, items, genreCount, genre );
                 break;
             case 2:
-                // showCosineSimilar(targetUser, movies);
+                showCosineSimilar(movies, items);
                 break;
             case 3:
                 // runCollaborative(targetUser, users, topPearsed);
@@ -161,11 +163,6 @@ int main()
 
     // printSampleLinked(users);
     
-
-
-
-
-
 
     // Included in paper close everything 
     fclose(infoFile);
@@ -276,8 +273,4 @@ void checkDups(struct dataSet *movies, int items)
     }    
 }
 
-void displayAllMovies(struct dataSet *movies, int items, int genreCount, char **genres)
-{
-    int jumpTo = 1;
-    printSample(movies, items, jumpTo, genreCount, genres);
-}
+

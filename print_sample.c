@@ -9,9 +9,9 @@
 
 void printSample(struct dataSet * movies, int items, int jumpTo, int genreCount, char **genre)
 {
-    for (int i = (jumpTo * 10) - 10, counter = 0; i <  items && counter < 10; i++, counter++)
+    for (int i = (jumpTo * 20) - 20, counter = 0; i <  items && counter < 20; i++, counter++)
     {
-        printf("\tid: %-4d title: %-50s genre: ",i, movies[i].title);
+        printf("\tid: %-4d title: %-55s genre: ",i, movies[i].title);
 
         printAptGEnre(&movies[i], genreCount,genre);
         printf("\n");

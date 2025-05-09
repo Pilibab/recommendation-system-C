@@ -1,5 +1,5 @@
-#ifndef HANDLE_INPUTS_C
-#define HANDLE_INPUTS_C
+#ifndef HANDLE_INPUTS_H
+#define HANDLE_INPUTS_H
     #include "structures.h"
 
     struct User getTargetUserMovies(FILE * file, struct dataSet movies[] );
